@@ -1,0 +1,61 @@
+\documentclass{report}
+\input{setup.tex}
+\begin{document}
+
+% Front page
+\pagenumbering{alpha} %frontpage numbered with a letter
+\input{content/00_frontmatter/frontpage.tex}
+
+% Abstract (un-numbered chapter)
+\pagenumbering{roman} %until main content we use roman page numbering
+\input{content/00_frontmatter/abstract.tex}
+
+% Preface (un-numbered chapter)
+\input{content/00_frontmatter/preface.tex}
+
+% Table of contents, figures, tables, listings and abbreviations
+\tableofcontents
+\listoffigures
+\listoftables
+\lstlistoflistings\addcontentsline{toc}{chapter}{Listings}
+\printnomenclature[1.5cm]
+
+% MAIN CONTENT
+\clearpage
+\pagenumbering{arabic} %''normal'' arabic numbering from here on out
+\input{content/01_introduction/introduction.tex}
+
+% Analysis
+\input{content/02_analysis/analysis.tex}
+
+% Requirements
+\input{content/03_requirements/requirements.tex}
+
+% Decision making
+\input{content/04_decisionmaking/decisionmaking.tex}
+
+% Robotics
+\input{content/05_robotics/robotics.tex}
+
+% Vision
+\input{content/06_vision/vision.tex}
+
+% Modelling
+\input{content/07_modelling/modelling.tex}
+
+% Results and discussion
+\input{content/08_resultsdiscussion/resultsdiscussion.tex}
+
+% Conclusion
+\input{content/09_conclusion/conclusion.tex}
+
+% References
+\clearpage
+\nocite{*} % Includes all of the .bib content
+\printbibliography\addcontentsline{toc}{chapter}{Bibliography}
+
+% Appendix
+\appendix %all sections below are numbered A, B, C,...
+\input{content/aa_appendix/appendices.tex}
+
+\end{document}
