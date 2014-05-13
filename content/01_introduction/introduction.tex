@@ -4,9 +4,7 @@ Models are necessary in most applications of robotics. Often the models are buil
 
 One way of recording such 3D models is by mounting a stereo camera on the end effector of a robot arm and let the robot move the camera to the views needed to generate the model. The precision of such systems is dependent on robust calibration with respect to both camera and kinematics.
 
-The camera can be calibrated using a marker plate in different poses thus calculating intrinsic parameters and camera disparity \cite{Zhang1999,Zhang2000}. The process of generating a 3D model involves calculating a disparity image from the stereo camera input. From the disparity a point cloud can be generated and point clouds from different views can be stitched together. The combined point cloud can then be filtered and used for surface- or volume reconstruction. The stitching process is dependent on the robot pose, since each point cloud must be transformed to the same frame.
-
-The robot pose can be calibrated in a process called hand-eye calibration solving for the unknown spatial relationships in the kinematic chain. This calibration thus influences the quality of the combined point cloud.
+One way of recording such 3D models is by mounting a stereo camera on the end effector of a robot arm and let the robot move the camera to the views needed to generate the model. The precision of the model is dependent on robust calibration with respect to both camera and kinematics. The camera can be calibrated using a marker plate in different poses thus calculating intrinsic parameters and camera disparity \cite{Zhang2000}. The robot pose can be calibrated in a process called hand-eye calibration solving for the unknown spatial relationships in the kinematic chain. 
 
 It is hypothesised that a hand-eye calibrated system can generate significantly more precise models than the same system without calibration.
 
