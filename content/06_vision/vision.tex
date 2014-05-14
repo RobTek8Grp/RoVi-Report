@@ -1,2 +1,180 @@
 \chapter{Vision}
-RoVi is the best course ever .... blablabla
+
+
+This chapter covers the transformation of 2D stereo images into a useful 3D point cloud. Using only a stereo camera as passive sensor.
+
+\section{Theory - Dense Stereo}
+
+Dense stereo uses two 2D images and converts them to a dense 3D point cloud. That is the 3D postion of every point in the 2D images is desired. To obtain this the disparity between all features are required, and the following stages are done with that in mind. The stages are as following.
+
+\begin{itemize}
+  \item Undistortion
+  \item Rectification
+  \item Correspondence
+  \item Reprojection
+\end{itemize}
+
+
+\subsection{Undistortion}
+
+Normally when modelling a camera the pinhole model is used, i.g. a 3D point, X, is mapped to the image plane, x, by $ x = f X/Z $, where f is the focal length and Z is the distance to the camera. Though a camera with a single pinhole would have a very long shutter time to gather enough light for an image. Thus to decrease shutter time a lens is used to concentrate more light on the image sensor. But as the lens is not perfect the image no longer complies with the pinhole camera model. By undistorting the images the actual projection point can be found for the images. 
+
+\subsubsection{Radial}
+
+The radial distortion appears as the lens is not perfectly parabolic, but spherical. That is expressed by an increasing distortion of the image the further one gets from the center of the image. 
+
+\[x = x(1 + k_{1} r^{2} + k_{2}^{4} + k_{3}^{6} ) \ldots \] 
+\[y = y(1 + k_{1} r^{2} + k_{2}^{4} + k_{3}^{6} ) \ldots \]
+
+
+\subsubsection{Tangential}
+
+The tangential distortion appears because of a misalignment between the center of the lens and the center of the sensor. Thus the circular distortion appears elliptical and further distortion parameters are needed.
+
+\[x = x + [2p_{1}y + p_{2}(r^{2} + 2x^{2} ) \ldots  ] \] 
+
+\[y = x + [p_{1}(r^{2} + 2y^{2} ) + 2p_{2}x \ldots ] \] 
+
+\subsection{Rectification}
+
+To find the 3D position of a point it's position must be known in both images. That is a matching between pixels must be performed for the two images. Rectification is a process which not only speeds up this process, but also increases accuracy.
+
+The idea is based on epipolar lines. Epipolar lines are created by knowing the transform between the cameras. For every single point in one camera the line on which it can appear on another camera can be found. The reason that this epipolar line exist is that though the actual 3D position of a projection line for the point can be found. That is the linear connection between X and Z in the camera matrix. Thus by the transform matrix the projection line can be projected into an epipolar line in an other camera.  
+
+By knowing the transformation between the two images, epipolar lines can be created for every point. An epipolar line is the line on which any point in one image must be positioned in the other image. Thus making the search for a feature much faster as it only occurs in one dimension.
+
+Rectification takes this one step further. By rectifying the two images the camera planes are made to be parallel. Making the search for correspondence a one dimensional horizontal endeavour, drastically increasing the speed.
+
+Thus undistortion is a manipulation done independently for the cameras and the rectification is performed for the two cameras together.
+
+""" matrixer """
+
+\subsection{Correspondence}
+
+Correspondence is the matching between position of pixels in the two images. This creates a disparity map for all pixels in the two images. Though only if a proper match can be performed.
+
+The matching can be done with either a single pixel or larger pixel patches.
+
+Simple, dynamic, global.
+
+The method used is the Semi-Global block matching.
+
+\[ E(D) = \sum\limits_{p}(C(p,D_{p}) + \sum\limits_{q \in N_{p} } P_{1} T [|D_{p} - D_{q}| = 1] + \sum\limits_{q \in N_{p} } P_{2} T [|D_{p} - D_{q}| > 1] \]
+
+Global matching tries to minimize the overall error in the disparity image. That is creating the optimal disparity image, though this is an NP-hard problem and thus more local approaches are implemented. 
+
+The most simple is the one 
+
+\subsection{Reprojection}
+
+During the calibration of the cameras projections matrices were obtained for both cameras. The projection matrices are based on the left camera lens. By multiplying the projection matrix with a 3D point compared to the left camera, the points position in the image can be found.That is:
+
+\[ 
+\begin{pmatrix}
+  x \\
+  y \\
+  \omega 
+ \end{pmatrix}	
+ = 
+ \begin{pmatrix}
+  F_{x} & 0 & C_{x} & -F_{x}T_{x} \\
+  0 & F_{y} & C_{y} & 0 \\
+  0 & 0 & 1 & 0
+ \end{pmatrix}
+ \begin{pmatrix}
+  X \\
+  Y \\
+  Z \\
+  1 
+ \end{pmatrix}	
+\]
+
+Here $F_{x}$ and $F_{y}$ are the focal length of the camera, $C_{x}$ and $C_{y}$ are the middle position of the image.
+
+$T_{x}$ is the translation to the left camera. That is for the right camera it is the baseline and for the left it is 0. The baseline is measured in millimetres. 
+
+But goal is to obtain the opposite, the transform from 2D to 3D. That is the action of converting the obtained disparity map into a 3D point cloud. To do that the x and y positions are combined with the disparity. Thus multiplying with the Q matrix the 3D map position can be found.
+
+\[ Q [ x \ y \ d \ 1 ]^{T} = [ X \ Y \ Z \ W ]^{T} \]
+
+Where the Q matrix is defined by the right projection matrix, except for the $C_{x}'$.
+
+\[
+Q =
+ \begin{pmatrix}
+  1 & 0 & 0 & -C_{x} \\
+  0 & 1 & 0 & -C_{y} \\
+  0 & 0 & 0 & F_{x} \\
+  0 & 0 & -1/T_{x} & (C_{x}-C_{x}')/T_{x} 
+ \end{pmatrix}
+\]
+
+Thus multiplying with the above mentioned vector, and scaling W to zero the 3D position can be obtained.
+
+\[
+ \begin{pmatrix}
+  x - C_{x} \\
+  y - C_{y} \\
+  F_{x} \\
+  d-1/T_{x} 
+ \end{pmatrix}
+ \Rightarrow
+  \begin{pmatrix}  
+  X\\
+  Y\\
+  Z
+ \end{pmatrix}
+ =
+ \begin{pmatrix}
+  \dfrac{x - C_{x}}{ d(-1/T_{x})}  \\
+  \dfrac{y - C_{y} }{ d(-1/T_{x})}\\
+  \dfrac{F_{x}}{ d(-1/T_{x})}\\
+  1
+ \end{pmatrix}
+\]
+
+\section{Method - Images to point cloud}
+
+As the project uses ROS for communication between nodes as much as possible ROS have been used for the stereo operations. Though it wasn't possible to use generic ROS nodes for every operation.
+
+\subsection{Calibration}
+
+To peform the undistortion and rectification the intrinsic and extrinsic parameters of the cameras are required. These were obtained by the ROS ??? node ??? $stereo\_camera\_calibrate$ by capturing images of a known chessboard pattern in different positions and rotations. When enough images have been captured the ROS ??? node ??? returns the camera matrix along with distortion parameters, the    the parameters of the cameras can be found.
+
+\subsection{Undistortion and rectification}
+
+
+
+Camera info and images and return rectified and undistorted images ready to be used by block matching algorithms.
+
+Cannot handle very large disparities that occur at small distances. 
+
+$image\_proc$
+
+\subsection{Blockmatching and reprojection}
+
+A ROS node is created takes the rectified images, creates a disparity map and reprojects this to 3D using OpenCV functions.
+
+Conversion from int16 to float32 by division of 16.
+
+\section{Results}
+\subsection{Calibration}
+\subsection{Disparity map}
+\subsection{Reprojected point clouds}
+
+
+\section{Chosing the right parameters- where do i put this?}
+
+When the 3D positions were extracted the following "connection" were found.
+
+$ Z = \dfrac{F_{x}}{ d(-1/T_{x})} $
+
+When solving for disparity the following "connection" is found:
+
+$ d = \dfrac{F_{x}T_{x}}{ Z} $
+
+Thus the distance is around 0.5 meter and the focal length and baseline is known, the disparity can be measured as around:
+
+$ d = \dfrac{1300pixel*0.12m}{0.5m} = 312pixel $
+
+Thus the minimum and maximum disparity both have to range around this number. The exact can be found by looking the maximum size of the object. Setting the correct disparity will drastically increase the search time.
