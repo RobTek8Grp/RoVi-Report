@@ -34,8 +34,8 @@ The voxel-grid down-samples the left overs from the cut-off filtering. The down-
 The voxel-grid filter works by splitting down the ROI into smaller regions (voxels) of certain resolution in which each of the voxels are analysed. Figure \ref{fig:filtering_voxel_grid} show the principle of the voxel-grid. A new point is approximated for each voxel, the new point is approximated by the points centroid which is contained in the voxel. This method is a little slower compared to just placing the new point in the center of the voxel, but it helps save some more detailed information about the surface curvature.
 \begin{figure}[htb]
 	\begin{center}
-		\includegraphics[scale=0.7,trim=0 0 0 0]{graphics/07_modelling/cube.jpg}%trim=l b r t
-		\caption{Illustrates a cube consisting of 10x10x10 cubes which resembles the voxel-grid filter.}
+		\includegraphics[scale=0.4,trim=0 0 0 0]{graphics/07_modelling/voxelgrid.png}%trim=l b r t
+		\caption{Illustrates the down sampling principle of the voxel-grid filter. The left point cloud is down sampled through a set of virtual cubes, which leaves the right cloud after processing the input. A uniform distribution of points is obtained this way for instance.}
 		\label{fig:filtering_voxel_grid}
 	\end{center}
 \end{figure}
@@ -44,3 +44,6 @@ The voxel-grid filter works by splitting down the ROI into smaller regions (voxe
 \marginnote{Subsection not finished}
 
 The individual point clouds from the individual views of the object are passed through the filter, the individual cloud is then stitched into another common cloud which is assembled from a number of individual clouds, predetermined by the decision making layer. The stitching of each cloud happens in the static frame, due to the transformation of the input to the filter node. The point clouds are stitched in the order at which they are received, thus the first frame becomes a sort of reference frame for the following frames. This is because the algorithm used for stitching the clouds together actually calculates a transform at which new incoming point clouds are transformed. The algorithm utilised for stitching is Iterative Closest Point (ICP). This is also implemented in in PCL and therefore this implementation (\texttt{pcl::IterativeClosestPointNonLinear< \ldots , \ldots >}) of the algorithm utilised. The ICP algorithm has it downsides. For example if a cloud is not aligned correctly, this will cause an error to propagate thought to the following clouds which could lead to a rather distorted model of the object of interest\cite{choe2007registration}. The algorithm will be described in further details in chapter \texttt{ref??}\marginnote{Ref til calibration chapter}.
+
+\subsection{Results}
+\marginnote{Missing section content}
