@@ -67,19 +67,45 @@ Thus undistortion is a manipulation done independently for the cameras and the r
 
 \subsection{Correspondence} \label{sec:correspondence}
 
-Correspondence is the matching between position of pixels in the two images. This creates a disparity map for all pixels in the two images. Though only if a proper match can be performed.
+Correspondence is the matching between position of pixels in the two images. This creates a disparity map for all pixels in the two images. Though there is no guarantee that the disparity map is actually correct. 
 
-The matching can be done with either a single pixel or larger pixel patches.
 
-Simple, dynamic, global.
+Many methods exist the main goal is dense stereo is to minimize the global error. 
 
-The method used is the Semi-Global block matching.
+
+Global matching tries to minimize the overall error in the disparity image. That is creating the optimal disparity image, though this is an NP-hard problem. Most of the top-ranked algorithms for the Middlesbury Stereo vision comparison \ref{hh08} and thus more local approaches are implemented. 
+
 
 \[ E(D) = \sum\limits_{p}(C(p,D_{p}) + \sum\limits_{q \in N_{p} } P_{1} T [|D_{p} - D_{q}| = 1] + \sum\limits_{q \in N_{p} } P_{2} T [|D_{p} - D_{q}| > 1] \]
 
-Global matching tries to minimize the overall error in the disparity image. That is creating the optimal disparity image, though this is an NP-hard problem and thus more local approaches are implemented. 
 
-The most simple is the one would be a simple linear search.
+The rectification of the images guarantees horizontal epipolar lines, and thus the most simple approach would be a 1D scan. 
+
+Mutual Information - handling radiometric distances
+
+Smoothness constraint - vertical smoothness
+
+
+
+
+
+The method used is the Semi-Global block matching.
+
+
+The matching can be done with either a single pixel or larger pixel patches.
+
+%@ARTICLE{4359315,
+%author={Hirschmuller, H.},
+%journal={Pattern Analysis and Machine Intelligence, IEEE Transactions on},
+%title={Stereo Processing by Semiglobal Matching and Mutual Information},
+%year={2008},
+%month={Feb},
+%volume={30},
+%number={2},
+%pages={328-341},
+%keywords={image matching;image reconstruction;stereo image processing;3D reconstruction;multibaseline matching;mutual information based matching;occlusion detection;orthographic projection;pathwise optimization;pixelwise matching;radiometric transformation;semiglobal matching;stereo processing;subpixel refinement;global optimization;multi-baseline;mutual information;stereo},
+%doi={10.1109/TPAMI.2007.1166},
+%ISSN={0162-8828},}
 
 \subsection{Reprojection} \label{sec:reprojection}
 
@@ -165,8 +191,9 @@ Undistortion and rectification is done with a simple ROS node called image $imag
 
 \subsection{Blockmatching and reprojection}
 
-The blockmatching is done with the OpenCV function SGBM described in section \ref{sec:correspondence}. Time stamps are checked for arriving images to make sure that they are recorded at the same time. The SGBM then uses the images and a certain set of parameters, discussed in section \ref{sec:optimizing_parameters} to make a disparity map. Conversion from int16 to float32 by division of 16.
+The blockmatching is done with the OpenCV function SGBM described in section \ref{sec:correspondence}. Time stamps are checked for arriving images to make sure that they are recorded at the same time. The SGBM then uses the images and a certain set of parameters, discussed in section \ref{sec:optimizing_parameters} to make a disparity map. 
 
+%Conversion from int16 to float32 by division of 16.
 
 A ROS node is created takes the rectified images, creates a disparity map and reprojects this to 3D using OpenCV functions.
 
@@ -176,9 +203,10 @@ Here results from the different operations are shown, these results are qualitat
 
 \subsection{Calibration}
 
-From the calibration, the both the distortion parameters and the projection matrixes are returned. The distortion parameters can be seen in equation \ref{eq:distortion}. An example of using these values for undistortion can be seen in image \ref{fig:undistorted}.
+From the calibration, the both the distortion parameters and the projection matrixes are returned. The distortion parameters can be seen in equation \ref{eq:distortion}. 
 
-label figure   Example of the undistortion.
+
+????? Reference to undistortion 
 
 
 \begin{equation}\label{eq:distortion}
@@ -227,26 +255,26 @@ The only thing left to do is reprojecting the disparity map into 3D coordinates.
 
 \begin{equation}\label{eq:parameters}
 \begin{split}
-Cx = 582.152313 \\
-Cy = 393.397633 \\
-Fx = 1321.556521 \\
-????? = 158.751707 
+C_{x} = 582.152313 \\
+C_{y} = 393.397633 \\
+F_{x} = 1321.556521 \\
+-F_{x}T_{x} = 158.751707 
 \end{split}
 \end{equation} 
 
-Given  ?????  the baseline between the cameras calculated as in equation \ref{eq:baseline}.
+Given $ -F_{x}T_{x} $ the baseline between the cameras calculated as in equation \ref{eq:baseline}.
 
 \begin{equation}\label{eq:baseline}
 \begin{split}
-Tx = ?????/(-Fx) = Tx = 158.8/-1321.6 = 0.1201 meters
+Tx = -F_{x}T_{x}/(-Fx) = Tx = 158.8/-1321.6 = 0.1201 meters
 \end{split}
 \end{equation} 
 
-Using these parameters in the Q-matrix the disparity image is reprojected to 3D. An example of the reprojection for the disparity image in figure \ref{fig:disparity} can be seen in figure \ref{fig:repro_point}
+Using these parameters for the Q-matrix, the disparity image is reprojected to 3D. An example of the reprojection for the disparity image in figure \ref{fig:disparity} can be seen in figure \ref{fig:point_repro}
 
 
 \begin{figure}[h!]
-  \caption{Point cloud reprojected using the parameters shown in section \ref{sec:repro_point} performed on the disparity image in figure \ref{fig:repro_point}. }
+  \caption{Point cloud reprojected using the parameters shown in section \ref{sec:repro_point} performed on the disparity image in figure \ref{fig:disparity}. }
   \centering
     \includegraphics[scale=0.7]{graphics/06_vision/point_cloud_example2.jpg} %trim=l b r t
     \label{fig:point_repro}
@@ -283,3 +311,7 @@ d = \dfrac{1321.55 pixel*0.1201m}{0.5m} = 317.4 pixel
 \end{equation}
 
 Thus the minimum and maximum disparity both have to range around this number. It is because of this that the point cloud generated from the ROS $image\_proc$ cannot be used. The node is only able to search with a maximum disparity range of 128 pixel. This gives a minimum distance of 1.24 meters. This wouldn't fit the desired setup at all and therefore the automatically generated point cloud is rejected. The exact disparity range can be found by looking at the maximum size of the object. This is an important aspect as setting the correct disparity range will drastically increase the search time and potentially remove mismatches.
+
+The algorithm is only able to scale the disparity in ranges of 16.
+
+From these equations the minimum and maximum disparity are respectively chosen to be 16*16=256 and                                   16*24=384, resulting in a range from 0.41 to 0.61 meters. Thus if the distance to object should move outside this range it will not be found.
