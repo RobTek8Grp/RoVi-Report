@@ -10,14 +10,18 @@ J. Manson \textit{et al}. did in 2008 propose a wavelet approach of the problem 
 The wavelet method for surface reconstruction chosen for this custom implementation is highly inspired by the description in \cite{Manson2008}. One main reason for using wavelets for the analysis of the surface compared to more conventional methods like FFT is that wavelets support localisation in spatial and frequency(scale) domains. This mean that analysis is made locally instead of globally, which leads to the possibility of reconstructing finer details in input data, that would otherwise be hidden by the global analysis. PSR is approximating an indicator function\marginnote{ref: indicator function} of the surface by solving a Poisson equation\marginnote{ref: Poisson eq.}. In the wavelet approach an indicator function is also estimated, but the way it is done is different. The wavelet approach approximates the wavelet coefficients of the indicator function by making a multi resolution analysis (MRA) of the input data\marginnote{ref: MRA, coeffs}. After the coefficients have been calculated ...
 
 \subsection{Indicator function}
-The method mentioned in \cite{Manson2008} defines the indicator function of the surface $\partial M$ of an object $M$ to be as follows
+The method mentioned in \cite{Manson2008}, the indicator function of the surface $\partial M$ of an object $M$ is described as follows
 
 \begin{equation}
-	\chi_M(\textbf{x}) =  
+	\chi_M(\textbf{x}) = 
+	\begin{cases}
+	1, & \textbf{x} \in M\\
+	0, & elsewhere
+	\end{cases} 
 	\label{eq:indicator_fnc}
 \end{equation}
 
-
+The indicator function is defined as a set $\chi_M$ of $\textbf{x}$, being one if the $\textbf{x}$ is a part of the object $M$, and zero elsewhere.
 
 \begin{equation}
 	c^e_{j,\textbf{k}} \approx 2^{3j \over 2} \sum_{p_i \in \partial M \cap \textit{supp}(\psi^e_{j,\textbf{k}})} \vec{F}^e_{j,\textbf{k}} (p_i) \cdot \vec{n}_i d \sigma_i 
@@ -27,6 +31,6 @@ The method mentioned in \cite{Manson2008} defines the indicator function of the 
 \subsection{Mesh generation}
 
 \subsection{Implementation}
-The surface reconstruction is implemented in ROS node making it compatible with the rest of the system. The assembled point cloud is passed from the filter node to the reconstruction node. PCL is used for estimating normals of the points in the assembled point cloud. 
+The surface reconstruction is implemented in ROS node making it compatible with the rest of the system. The assembled point cloud is passed from the filter node to the reconstruction node.
 
 \subsection{Results}
