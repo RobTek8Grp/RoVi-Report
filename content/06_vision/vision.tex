@@ -20,7 +20,7 @@ Dense stereo uses two 2D images and converts them to a dense 3D point cloud. Tha
 
 The undistortion and rectification is performed automatically and therefore only a short description will be included. By knowledge of these parameters one could make functions take them into account, but it is much more effective to transform the images.
 
-As a lense is used for the cameras the normal camera model cannot be used, i.e. a 3D point, X, is mapped to the image plane, x, by $ x = f X/Z $, where f is the focal length and Z is the distance to the camera. Both radial and tangential distortion exist respectively creating the circular and elliptical distortion. By correcting the image for these parameters all pixels now follow the camera model and their projection line can be found.
+As a lens is used for the cameras the normal camera model cannot be used, i.e. a 3D point, X, is mapped to the image plane, x, by $ x = f X/Z $, where f is the focal length and Z is the distance to the camera. Both radial and tangential distortion exist respectively creating the circular and elliptical distortion. By correcting the image for these parameters all pixels now follow the camera model and their projection line can be found.
 
 The basic idea of rectification is based on epipolar lines. Epipolar lines are created by knowing the transform between the cameras. For every single point in one camera the line on which it can appear on another camera can be found. That is the epipolar line is a mapping of a pixels projection line in one camera to onto the image plane of another camera. 
 
@@ -79,7 +79,12 @@ Global matching tries to minimize the overall error in the disparity image. That
 \[ E(D) = \sum\limits_{p}(C(p,D_{p}) + \sum\limits_{q \in N_{p} } P_{1} T [|D_{p} - D_{q}| = 1] + \sum\limits_{q \in N_{p} } P_{2} T [|D_{p} - D_{q}| > 1] \]
 
 
-The rectification of the images guarantees horizontal epipolar lines, and thus the most simple approach would be a 1D scan. 
+The rectification of the images guarantees horizontal epipolar lines, and thus the most simple approach would be a 1D scan. Though this leads to high vertical 
+
+The method used is the Semi-Global block matching.
+
+
+
 
 Mutual Information - handling radiometric distances
 
@@ -87,9 +92,6 @@ Smoothness constraint - vertical smoothness
 
 
 
-
-
-The method used is the Semi-Global block matching.
 
 
 The matching can be done with either a single pixel or larger pixel patches.
@@ -151,7 +153,7 @@ Q =
  \end{pmatrix}
 \]
 
-Thus multiplying with the above mentioned vector, and scaling W to zero the 3D position can be obtained.
+Thus multiplying with the above mentioned vector, and scaling W to one the 3D position can be obtained.
 
 \[
  \begin{pmatrix}
@@ -203,11 +205,17 @@ Here results from the different operations are shown, these results are qualitat
 
 \subsection{Calibration}
 
-From the calibration, the both the distortion parameters and the projection matrixes are returned. The distortion parameters can be seen in equation \ref{eq:distortion}. 
+From the calibration, the both the distortion parameters and the projection matrixes are returned. The distortion parameters can be seen in equation \ref{eq:distortion}. A more in depth description of the undistorion can be seen in the OpenCV book %\ref{locv}.
 
 
-????? Reference to undistortion 
 
+%@Book{locv,
+%author = {Bradski, Gary and Kaehler, Adrian},
+%title = {Learning OpenCV},
+%publisher = {O'Reilly Media},
+%year      = {2008},
+%edition  = {1},
+%}
 
 \begin{equation}\label{eq:distortion}
 \begin{split}
@@ -315,3 +323,16 @@ Thus the minimum and maximum disparity both have to range around this number. It
 The algorithm is only able to scale the disparity in ranges of 16.
 
 From these equations the minimum and maximum disparity are respectively chosen to be 16*16=256 and                                   16*24=384, resulting in a range from 0.41 to 0.61 meters. Thus if the distance to object should move outside this range it will not be found.
+
+Speckle settings are another important parameter, though adjusting this depends entirely on the use of the point cloud. If the reconstruction doesn't take care of noise the speckle-size should be very low. The speckle range should also accommodate the point cloud so as to keep the signal/noise as high as possible, but still fitting the system.
+
+
+
+
+
+%@ONLINE{opencv,
+%title = {Homepage of OpenCV, the program for implementing the vision algorithms.},
+%month = may,
+%year = {2013},
+%howpublished = "\url{http://opencv.org/}"
+%}
