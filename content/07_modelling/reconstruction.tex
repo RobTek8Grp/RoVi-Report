@@ -21,12 +21,16 @@ The method mentioned in \cite{Manson2008}, the indicator function of the surface
 	\label{eq:indicator_fnc}
 \end{equation}
 
-The indicator function is defined as a set $\chi_M$ of $\textbf{x}$, being one if the $\textbf{x}$ is a part of the object $M$, and zero elsewhere.
+The indicator function is defined as a set $\chi_M$ of $\textbf{x}$, being one if the $\textbf{x}$ is a part of the object $M$ else zero.\\
+\\
+Eq. \ref{eq:wavelet_coeffs} calculates an approximation of the wavelet coefficients of the indicator function $\chi_M$. For further details on the derivation of eq. \ref{eq:wavelet_coeffs} consult \cite{Manson2008}. 
 
 \begin{equation}
 	c^e_{j,\textbf{k}} \approx 2^{3j \over 2} \sum_{p_i \in \partial M \cap \textit{supp}(\psi^e_{j,\textbf{k}})} \vec{F}^e_{j,\textbf{k}} (p_i) \cdot \vec{n}_i d \sigma_i 
 	\label{eq:wavelet_coeffs}
 \end{equation}
+
+
 
 \subsection{Mesh generation}
 
