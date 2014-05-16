@@ -92,31 +92,30 @@ In this work an alternative approach is taken to include more of the possible un
 
 \noindent Estimating a rigid transform between two point clouds can be considered a pose estimation problem and actually exactly this problem is already being solved as part of  modelling component. There pose estimation is used for pairwise alignment of the point clouds as part of the registration process. Knowing the pairwise pose estimate means that another closed loop formulation can be expressed (Figure \ref{fig:new_calibration}). \\
 
-\noindent Taking as example the camera pose at state 1 ($ [T_1]_{camera} $) and following the pairwise alignment transforms all the way around ending up back at $ [T_1]_{camera} $ the result must be equal to the original pose and the error at that pose.
+\noindent Taking as example the camera pose at state 1 ($ [T_1]_{base}^{camera} $) and following the pairwise alignment transforms all the way around ending up back at state 1 the result must be equal to the original pose and the error at that pose.
 
 \begin{equation}
 \begin{matrix}
-[T_{1}]_{camera} \cdot [T_{12}]_{PC} \cdot [T_{23}]_{PC} \cdot [T_{34}]_{PC} \cdot [T_{45}]_{PC} \cdot [T_{51}]_{PC} = [T_{1}]_{camera} \cdot [T_{1}]_{error}
+[T_{1}]_{base}^{camera} \cdot [T_{12}]_{PC} \cdot [T_{23}]_{PC} \cdot [T_{34}]_{PC} \cdot [T_{45}]_{PC} \cdot [T_{51}]_{PC} = [T_{1}]_{base}^{camera} \cdot [T_{1}]_{camera}^{error}
 \\ 
 \Updownarrow \\ 
 \\ 
-[T_{12}]_{PC} \cdot [T_{23}]_{PC} \cdot [T_{34}]_{PC} \cdot [T_{45}]_{PC} \cdot [T_{51}]_{PC} = [T_{1}]_{error}
+[T_{12}]_{PC} \cdot [T_{23}]_{PC} \cdot [T_{34}]_{PC} \cdot [T_{45}]_{PC} \cdot [T_{51}]_{PC} = [T_{1}]_{camera}^{error}
 \end{matrix}
 \end{equation}\\ 
 
-\noindent Looking at the closed loop in figure \ref{fig:new_calibration} if say the view at state 3 had a large error, that error would in the evaluation of all other states result in two contributions ($ [T_{23}] $ and $ [T_{34}] $) of equal magnitude and opposite sign. This means the method is robust to outliers. Now having estimated the error at each pose, a non-linear method can be used to estimate the calibrated transform. The ideal method would be one eliminating the error in each state, while interpolating in between. However such a method cannot be made with a static transform.
+\noindent Looking at the closed loop in figure \ref{fig:new_calibration} if say the view at state 3 had a large error, that error would in the evaluation of all other states result in two contributions ($ T_{23} $ and $ T_{34} $) of equal magnitude and opposite sign. This means the method is robust to outliers. Now having estimated the error at each pose, a non-linear method can be used to estimate the calibrated transform. The ideal method would be one eliminating the error in each state, while interpolating in between. However such a method cannot be made with a static transform.
 
+\marginnote{Her er der som jeg ser det to muligheder. Enten følger vi Kents idé om at publicere et dynamisk tf som interpolerer mellem fejlene eller også benytter vi en damped least-squares eller lignende til at bestemme et statisk tf...}
 
 \begin{figure}[htb]
 	\begin{center}
-		\includegraphics[width=\textwidth,trim=0 0 0 0]{graphics/03_calibration/new_calibration.pdf}%trim=l b r t
+		\includegraphics[scale=0.4,trim=0 0 0 0]{graphics/03_calibration/new_calibration.pdf}%trim=l b r t
 		\caption{The closed loop formed by the point cloud transformations.}\label{fig:new_calibration}
 	\end{center}
 \end{figure}
 
-!!!!!\\
-Her er der som jeg ser det to muligheder. Enten følger vi Kents idé om at publicere et dynamisk tf som interpolerer mellem fejlene eller også benytter vi en damped least-square eller lignende til at finde et statisk tf...\\
-!!!!!\\
+
  
 
 
