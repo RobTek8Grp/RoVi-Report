@@ -42,8 +42,6 @@ The Modelling part takes point clouds as input and these are transformed to a co
 \subsection{Calibration}
 The calibration process is responsible for calibrating the system prior to running the task. There are numerous sources of errors in the system, but in a closed-loop system thorough calibration can limit the effects of inaccuracies. Performing a hand-eye calibration can provide the exact transform between camera view and the end-effector, thus in theory removing the need for relative pose estimation in combining the point clouds.
 
-\subsection{Evaluation}
-To evaluate the effects of the calibration a series of tests must be made comparing results from the uncalibrated system to results from the calibrated system. Comparison will be made by visual inspection of the produced 3D model. More quantitative measures could be made by using known objects (i.e. objects manufactured from a 3D model) and statistically compare the reconstructed model to the original. However if the difference is not visible to the naked eye, it is not worth doing the calibration. The system should be evaluated using known objects with different levels of detail since this will make it possible to do quantitative evaluation of the system performance if necessary in a future application.
 
 \subsection{Requirements specification}
 The above analysis leads to a requirements specification (Table \ref{tab:requirements}) for the combined system.

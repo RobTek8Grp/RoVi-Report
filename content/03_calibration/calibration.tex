@@ -1,12 +1,12 @@
 \chapter{Calibration}
-In the process of combining data from several view points, a model of the system is needed as to align the measurements correctly. An idealised model can be formulated based on motion theory, but in inherently imperfect hence the need for calibration. In the context of eye-in-hand based surface reconstruction, especially calibrating the kinematic chain from object robot base is important in order to combine data from several views. The calibration process presented here is based on the linear method \cite{Tsai1988} with some application specific modifications.
+In the process of combining data from several view points, a model of the system is needed as to align the measurements correctly. An idealised model can be formulated based on motion theory, but in inherently imperfect hence the need for calibration. In the context of eye-in-hand based surface reconstruction, especially calibrating the kinematic chain from object robot base is important in order to combine data from several views. Calibration of robot systems has received considerable attention and continues to be an active field of research. A solution for the unknown transforms from camera to end effector and from object to robot base can be obtained relatively easy by solving a homogeneous transform \cite{Shiu1989}. Several algorithms for more or less autonomous calibration has been proposed \cite{Tsai1988, Tsai1989} often simultaneously calibrating camera and hand-eye \cite{Malm2003, Zhao2008, Jordt2009}. The calibration process presented here is based on the linear method \cite{Tsai1988} with some application specific modifications.
 
 
 \subsection{Notation}
 In the formulation of hand-eye calibration a number of homogeneous transforms between frames are be described. Most literature uses a mathematically founded notation of \textit{Ai}, \textit{Bi}, \textit{A}, \textit{B}, \textit{X} and \textit{Y} leading to nice and clean equations. In this work a more explicit and engineering friendly notation will be used stating for each transform the state index (since there are several different robot states involved to allow different views of the object), the name of the frame described and the name of the reference frame. Examples of the notation are explained in table \ref{tab:notation}. The transform is a a 4x4 matrix containing a 3x3 rotation matrix and a 1x3 translation vector. The terms end-effector and Tool Center Point(TCP) will be used interchangeably.\\
 
 \begin{table}[h]
-\caption{Examples of the notation.}
+\caption{Examples of the notation used to describe rigid transformation.}
 \begin{tabular}{ll}
 \label{tab:notation}
 $[T_{i}]_{camera}^{object}$   & The transform from object to camera at the \textit{i}th robot state          \\[8pt] 
@@ -86,17 +86,11 @@ $[T_{i-1,i}]_{camera}$        & The camera frame at state \textit{i} relative to
 \marginnote{Refs} 
 
 \subsection{Application specific method}
-In this work an alternative approach is taken to include more of the possible uncertainties in the hand-eye calibration and to account for the unjustified assumptions mentioned above.\\
+In this work an alternative approach is taken to include more of the possible uncertainties in the hand-eye calibration and to account for the unjustified assumptions mentioned above. Uncertainties in the vision process generating the transform from object to camera could stem from inaccurate parameters, the pinhole model assumption or pixel quantisation errors to mention a few. Uncertainties in the transform from end-effector to base can stem from mechanical inaccuracies, wear and tear, quantisation errors in encoders or from dynamics, also just to mention a few. \\
 
-\noindent Uncertainties in the vision process generating the transform from object to camera could stem from inaccurate parameters, the pinhole model assumption or pixel quantisation errors to mention a few. Uncertainties in the transform from end-effector to base can stem from mechanical inaccuracies, wear and tear, quantisation errors in encoders or dynamics, also just to mention a few. \\
+\noindent Solving the linear system from equation \ref{eq:linear_equations} is equivalent to making a least-squares fit and thus after calibration a fixed transform minimising the error over all robot states is applied to each state. The problem with this is that a linear method is used to estimate errors that are by no means linear. Furthermore the method is vulnerable to outliers, since one faulty view will influence all others. Instead a method capable of fitting non-linear functions is desirable, but to use such, individual errors at each robot state must be known. Furthermore it is desired to include as much of the reconstruction process as possible inside the the calibration loop, to account for as many errors as possible. Therefore it is desirable to base the calibration on the point clouds instead of the camera output and furthermore it is desirable to evaluate each data pair instead of pooling them for all views.\\
 
-\noindent Solving \ref{eq:linear_equations} is equivalent to making a least-squares fit and thus after calibration a fixed transform minimising the error over all robot states is applied to each state. There are several problems in this, but most important a linear function is used to estimate errors that are by no means linear.\\
-
-\marginnote{Can we find a ref?}
-
-\noindent Instead a method capable of fitting non-linear functions is desirable and the Damped Least-Squares(DLS) algorithm is that \cite{Levenberg-Marquardt}, but to use this individual errors for each robot state are required. Furthermore it is desired to include as much of the reconstruction process as possible inside the closed loop of the calibration. Therefore it is desirable to base the calibration on the point clouds instead of the camera output and furthermore it is desirable to evaluate each data pair instead of pooling all views.\\
-
-\noindent Estimating a rigid transform between two point clouds can be considered a pose estimation problem and actually exactly this problem is already being solved as part of  modelling component. There pose estimation is used for pairwise aligning point clouds as part of combining point clouds from several views. Getting the pairwise pose estimate means that another closed loop formulation can be expressed (Figure \ref{fig:new_calibration}). \\
+\noindent Estimating a rigid transform between two point clouds can be considered a pose estimation problem and actually exactly this problem is already being solved as part of  modelling component. There pose estimation is used for pairwise alignment of the point clouds as part of the registration process. Knowing the pairwise pose estimate means that another closed loop formulation can be expressed (Figure \ref{fig:new_calibration}). \\
 
 \noindent Taking as example the camera pose at state 1 ($ [T_1]_{camera} $) and following the pairwise alignment transforms all the way around ending up back at $ [T_1]_{camera} $ the result must be equal to the original pose and the error at that pose.
 
@@ -110,7 +104,7 @@ In this work an alternative approach is taken to include more of the possible un
 \end{matrix}
 \end{equation}\\ 
 
-\noindent Now having found an expression of the error at each pose, a non-linear calibration transform can be found...
+\noindent Looking at the closed loop in figure \ref{fig:new_calibration} if say the view at state 3 had a large error, that error would in the evaluation of all other states result in two contributions ($ [T_{23}] $ and $ [T_{34}] $) of equal magnitude and opposite sign. This means the method is robust to outliers. Now having estimated the error at each pose, a non-linear method can be used to estimate the calibrated transform. The ideal method would be one eliminating the error in each state, while interpolating in between. However such a method cannot be made with a static transform.
 
 
 \begin{figure}[htb]
@@ -120,12 +114,13 @@ In this work an alternative approach is taken to include more of the possible un
 	\end{center}
 \end{figure}
 
-Assuming the point clouds are all samples from the same unknown surface. Due to occlusions this is not true, but for most objects, assuming relatively small changes in viewpoint, it can be justified.
+!!!!!\\
+Her er der som jeg ser det to muligheder. Enten følger vi Kents idé om at publicere et dynamisk tf som interpolerer mellem fejlene eller også benytter vi en damped least-square eller lignende til at finde et statisk tf...\\
+!!!!!\\
 
 
-
-
-
+\subsection{Test set-up}
+The purpose 
 
 
 
