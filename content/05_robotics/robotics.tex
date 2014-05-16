@@ -48,8 +48,8 @@ A tool that can be used to generate the URDF file directly from a CAD assembly f
 % - Visualization
 \section{ROS MoveIt}
 \label{sec:moveit}
-ROS MoveIt is a software plannig tool that collect many opensource libraries to a tool that can easyly can be used for planning with complex robots. A great example of a complex robot is the PR2 robot developed at Willow Garage that runs on MoveIt.
-Controlling a robot with MoveIt can be done by the interface provided in C++ or python but it also features a planning plugin for the ROS visualizer (Rviz). Combining the programming interface with Rviz gives a great visual feedback, where the planned trajectory can be visualized before and while moving the robot as seen on figure \ref{fig:robot_trajectory}.
+ROS MoveIt is a software plannig tool that collect many opensource libraries to a tool that can easyly be used for planning with both simple and high dimensionality robots. A great example of a complex robot is the PR2 robot developed at Willow Garage that runs on MoveIt.
+Controlling a robot with MoveIt can be done by the C++ or python interface, but it also features a planning plugin for the ROS visualizer (Rviz). Combining the programming interface with Rviz gives a great visual feedback, where the planned trajectory can be visualized before and while moving the robot as seen on figure \ref{fig:robot_trajectory}.
 
 \begin{figure}[htb]
 	\begin{center}
@@ -59,24 +59,25 @@ Controlling a robot with MoveIt can be done by the interface provided in C++ or 
 	\end{center}
 \end{figure}
 
+When planning in MoveIt it will by default use the Open Motion Planneing Library (OMPL), however MoveIt provides a plugin interface allowing custom planners to be used. OMPL is a collection of state of art sample based planners that takes a planning request and collision detector as input and if succesfull returns a planned path. MoveIt then generate a trajectory from the path according to the given robot constaints. The collision checking in MoveIt is done by Flexible Collision Library (FCL). This collision detection allows different input models, such that both robot self-collision, workcell model collision and collision with sensed objects. For collison with sensed data, MoveIt has a self-filter, such that if a robot part is sensed it can be filtered away from collision map. Without this feature the sensed robot would collide with the kinematic calculated position of the robot. As default MoveIt uses Orocos KDL for solving the kinematics, but for complex robots it is recommended to compile a robot specific solver using OpenRave IKfast.
+
 % - Features / introduction
 % - - Support for octomap input for collsion checking with self-filter (removes visible parts of the robot from the map)
 % - - OMPL - Motion planning (OMPL itself has no concept of a robot)
-% - - IKFast - Kinematic solver
+% - - OpenRave IKFast - Kinematic solver / Orocos KDL
 % - - FCL - Collision checking
-% - Importing the robot
+% - Importing the robot (robot setup tool)
 % - Interfaces (rviz, c++, trajectory service)
 % - - rviz, c++
 % - - controller manager (trajectory action interface)
 % - Constrainting the robot
 
 % - Robot state publisher (TF)
-\section{Planning}
-\label{sec:planning}
+%\section{Planning}
+%\label{sec:planning}
 % - PRM planner
 % - Path optimization
 % - How is it done in OMPL?
-\section{ROS MoveIt}
 \section{Robot control}
 \label{sec:robot_control}
 % - ROS Control framework
