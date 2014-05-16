@@ -7,11 +7,22 @@ In 2006, M. Kazhdan \textit{et al}. proposed in \cite{Kazhdan2006} an algorithm 
 J. Manson \textit{et al}. did in 2008 propose a wavelet approach of the problem of reconstructing surfaces of large sets of unstructured points \cite{Manson2008}. The method is robust to noise in data because it is relying on implicit methods as PSR, and is therefore well-suited for reconstruction of real data which is overlayed with some random noise. The wavelet approach an advantages over PSR, the wavelet approach is able to reconstruct non-closed surfaces in opposition to PSR \cite{Kazhdan2006}. Using the Haar wavelet synthesise an acceptable surface if the points are well-aligned, else more smooth wavelets can be used such as Daubechies-2. Using octrees and small-support wavelets makes the synthesisation very fast, smaller support equals less computational time and space. Using Daubechies-2 compared to Haar increases computational time by a scale of four, and the space consumption is upscale by approximately four as well. As the methods for reconstruction mentioned first does not guarantee watertight mesh and does not work very well with large point sets, mean those methods are not of interest for further studies. The PSR and the wavelet approach both does estimate an indicator function of the surface, but each handles this indicator function differently. As these method is based on implicit methods they are more robust to noise in the input and approximates the surfaces better compared to the methods mentioned first.
 
 \subsection{Overview of reconstruction scheme}
-The wavelet method for surface reconstruction chosen for this custom implementation is highly inspired by the description in \cite{Manson2008}. One main reason for using wavelets for the analysis of the surface compared to more conventional methods like FFT is that wavelets support localisation in spatial and frequency(scale) domains. 
-
-\subsection{Wavelets}
+The wavelet method for surface reconstruction chosen for this custom implementation is highly inspired by the description in \cite{Manson2008}. One main reason for using wavelets for the analysis of the surface compared to more conventional methods like FFT is that wavelets support localisation in spatial and frequency(scale) domains. This mean that analysis is made locally instead of globally, which leads to the possibility of reconstructing finer details in input data, that would otherwise be hidden by the global analysis. PSR is approximating an indicator function\marginnote{ref: indicator function} of the surface by solving a Poisson equation\marginnote{ref: Poisson eq.}. In the wavelet approach an indicator function is also estimated, but the way it is done is different. The wavelet approach approximates the wavelet coefficients of the indicator function by making a multi resolution analysis (MRA) of the input data\marginnote{ref: MRA, coeffs}. After the coefficients have been calculated ...
 
 \subsection{Indicator function}
+The method mentioned in \cite{Manson2008} defines the indicator function of the surface $\partial M$ of an object $M$ to be as follows
+
+\begin{equation}
+	\chi_M(\textbf{x}) =  
+	\label{eq:indicator_fnc}
+\end{equation}
+
+
+
+\begin{equation}
+	c^e_{j,\textbf{k}} \approx 2^{3j \over 2} \sum_{p_i \in \partial M \cap \textit{supp}(\psi^e_{j,\textbf{k}})} \vec{F}^e_{j,\textbf{k}} (p_i) \cdot \vec{n}_i d \sigma_i 
+	\label{eq:wavelet_coeffs}
+\end{equation}
 
 \subsection{Mesh generation}
 
