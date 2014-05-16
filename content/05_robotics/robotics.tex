@@ -22,7 +22,16 @@ The robot provided for this project is a Stäubli RX60b 6 Axis industrial manipu
 % - The tool unit and sensors (breif)
 The tool mounted on the tool flange is a 3D printet sensor mount with both a Carmine depth camera and a PointGrey BumbleBee stereo camera. Wires have been strip mounted to the robot to avoid them getting stuck in the moving parts. 
 % - Workcell
-The workcell contains the robot placed on plane big surface, a Troax safety fence and a radiator. Both the fence and the radiator is placed in such distance that the robot will only be able to collide with them in very few configurations. The workcell can be seen in figure \marginnote{Image missing}.
+The workcell contains the robot placed on plane big surface, a Troax safety fence and a radiator. Both the fence and the radiator is placed in such distance that the robot will only be able to collide with them in very few configurations. The workcell can be seen in figure \ref{fig:workcell} \marginnote{Image placeholder}.
+
+\begin{figure}[htb]
+	\begin{center}
+		\includegraphics[scale=0.4,trim=0 0 0 0]{graphics/05_robotics/workcell.png}%trim=l b r t
+		\caption{Picture of the workcell}
+		\label{fig:workcell}
+	\end{center}
+\end{figure}
+
 
 % ------------------------------------------- PICTURE OF ROBOT AND WORKCELL ---------------------------------------
 
@@ -59,7 +68,18 @@ Controlling a robot with MoveIt can be done by the C++ or python interface, but 
 	\end{center}
 \end{figure}
 
-When planning in MoveIt it will by default use the Open Motion Planneing Library (OMPL), however MoveIt provides a plugin interface allowing custom planners to be used. OMPL is a collection of state of art sample based planners that takes a planning request and collision detector as input and if successful returns a planned path. MoveIt then generate a trajectory from the path according to the given robot constraints. The collision checking in MoveIt is done by Flexible Collision Library (FCL). This collision detection allows different input models, such as robot self-collision, workcell model collision and collision with sensed objects. For collision with sensed data, MoveIt has a self-filter, such that if a part of the robot is sensed it can be filtered away from collision map. Without this feature, the sensed robot would collide with the kinematic calculated position of the robot. As default MoveIt uses Orocos KDL for solving the kinematics, but for complex robots it is recommended to compile a robot specific solver using OpenRave IKfast.
+When planning in MoveIt it will by default use the Open Motion Planneing Library (OMPL), however MoveIt provides a plugin interface allowing custom planners to be used. OMPL is a collection of state of art sample based planners that takes a planning request and collision detector as input and if successful returns a planned path. MoveIt then generate a trajectory from the path according to the given robot constraints. The collision checking in MoveIt is done by Flexible Collision Library (FCL). This collision detection allows different input models, such as robot self-collision, workcell model collision and collision with sensed objects. For collision with sensed data, MoveIt has a self-filter, such that if a part of the robot is sensed it can be filtered away from collision map. Without this feature, the sensed robot would collide with the kinematic calculated position of the robot. When configuring a robot with MoveIt a Allowed Collision Matrix (ACM) is generated. This matrix defines joints on the robot that do not need to be checked for collision, such as joints that may never collide in any configuration and succeeding joints. Succeeding joints are of cause able to collide, but this should be avoided by setting prober joint movement constraints instead of the collision detector, as a collision detection calls are expensive in computation. As default MoveIt uses Orocos KDL for solving the kinematics, but for complex robots it is recommended to compile a robot specific solver using OpenRave IKfast. The advantage of a IKfast compiled solver is that it is able to use analytical solvers instead of numerical.
+When the model of the robot is present, it is easy to start using MoveIt. After installation MoveIt contains a setup tool with a guide trough the whole process. This tool is called MoveIt Setup Assistant and is shown on figure \ref{fig:moveit_setup_assistant}.
+
+\begin{figure}[htb]
+	\begin{center}
+		\includegraphics[scale=0.4,trim=0 0 0 0]{graphics/05_robotics/moveit_setup_assistant.png}%trim=l b r t
+		\caption{The MoveIt setup tool}
+		\label{fig:moveit_setup_assistant}
+	\end{center}
+\end{figure}
+
+When the MoveIt setup tool has been run, a ROS package has been generated with the prober launch files to start planing with the robot. This package features a demo application which launches Rviz with the motion plugin, so the robot can be seen running. For the real robot to move, at least one controller needs to be implemented. This is described in section \ref{sec:robot_control}.
 
 % - Features / introduction
 % - - Support for octomap input for collsion checking with self-filter (removes visible parts of the robot from the map)
@@ -73,14 +93,29 @@ When planning in MoveIt it will by default use the Open Motion Planneing Library
 % - Constrainting the robot
 
 % - Robot state publisher (TF)
+
+
+
 %\section{Planning}
 %\label{sec:planning}
+% ------------ Things that we have been discussing in class do not need to be described in very fine detail -----------
 % - PRM planner
 % - Path optimization
 % - How is it done in OMPL?
+
+
+
 \section{Robot control}
 \label{sec:robot_control}
 % - ROS Control framework
+When MoveIt has generated a trajectory for the robot, a controller needs to take care of the physical movement. For this there is a package called ros\_control that provides a framework and tools for implementing a robot controller. The ros\_control package consists of a controller manager, a hardware\_interface and different types of controllers. To get the robot running a new package with a node for the controller has to be made. In the node, the framework is included and a description of the robot inputs and outputs are defined. The control loop of the node fetches the state from the robot and passes this to the controller. The controller then outputs the desired movement for the robot which has to be passed on to the robot.  
+
+
+% Action and service interfaces
+% The action controller in moveit
+% the fake_controller in moveit
+% joint_state_publisher
+
 
 %Motion planning
 %  general motion planning, kinematics
