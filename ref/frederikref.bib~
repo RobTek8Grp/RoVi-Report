@@ -1,0 +1,30 @@
+@ARTICLE{4359315,
+author={Hirschmuller, H.},
+journal={Pattern Analysis and Machine Intelligence, IEEE Transactions on},
+title={Stereo Processing by Semiglobal Matching and Mutual Information},
+year={2008},
+month={Feb},
+volume={30},
+number={2},
+pages={328-341},
+keywords={image matching;image reconstruction;stereo image processing;3D reconstruction;multibaseline matching;mutual information based matching;occlusion detection;orthographic projection;pathwise optimization;pixelwise matching;radiometric transformation;semiglobal matching;stereo processing;subpixel refinement;global optimization;multi-baseline;mutual information;stereo},
+doi={10.1109/TPAMI.2007.1166},
+ISSN={0162-8828},}
+
+@article{egnal2000mutual,
+  title={Mutual information as a stereo correspondence measure},
+  author={Egnal, Geoffrey},
+  journal={Technical Reports (CIS)},
+  pages={113},
+  year={2000}
+}
+
+
+
+@Book{locv,
+author = {Bradski, Gary and Kaehler, Adrian},
+title = {Learning OpenCV},
+publisher = {O'Reilly Media},
+year      = {2008},
+edition  = {1},
+}

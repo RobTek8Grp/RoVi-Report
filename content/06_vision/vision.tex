@@ -70,44 +70,66 @@ Thus undistortion is a manipulation done independently for the cameras and the r
 Correspondence is the matching between position of pixels in the two images. This creates a disparity map for all pixels in the two images. Though there is no guarantee that the disparity map is actually correct. 
 
 
-Many methods exist the main goal is dense stereo is to minimize the global error. 
+The main goal in dense stereo can be described as minimizing the global error. 
+
+Most of the top-ranked algorithms for the Middlesbury Stereo vision comparison use global optimization \ref{hh08}. Global optimization tries to minimize the overall error in the disparity image. That is creating the optimal disparity image, though as this is an NP-hard problem for the sake of speed these where not considered.
+
+The opposite approach is a 1D scan. As the rectification of the images guarantees horizontal epipolar lines, the most simple approach would be a 1D scan optimized for the lowest error. Though a single scanline algorithm would lead to a very low vertical consistency of disparity. 
+
+Instead a semi global approach is used, a compromise between the two methods. 
+
+The idea of the semi global matching is an optimization of the disparity locally, but consistent. Following equation \ref{eq:cost} the penalty for small changes and large changes are distinguished as respectively $P_{1}$ and $P_{2}$.
+
+\begin{equation}\label{eq:cost}
+\begin{split}
+E(D) = \sum\limits_{p}(C(p,D_{p}) + \sum\limits_{q \in N_{p} } P_{1} T [|D_{p} - D_{q}| = 1] + \sum\limits_{q \in N_{p} } P_{2} T [|D_{p} - D_{q}| > 1]
+\end{split}
+\end{equation} 
+
+The optimization is then done as a shortest path for multiple 1D paths. Figure \ref{fig:paths} shows an example of this using 16 paths, in the actual implementation only 5 paths are used. A disparity range for which the path is found is defined beforehand, thus a limit is set to which disparity’s can be found. 
+
+\begin{figure}[h!]
+  \centering
+    \includegraphics[width=\textwidth]{graphics/06_vision/cost_aggregation.jpg}
+      \caption{Costs are summed for the paths using specific disparities and the disparity with the shortest path is found.}
+    \label{fig:paths}
+\end{figure}
+
+Mutual information \cite{egnal2000mutual} is used as the pixelwise matching. Using mutual information makes the algorithm much better at handling handling radiometric distances. 
 
 
-Global matching tries to minimize the overall error in the disparity image. That is creating the optimal disparity image, though this is an NP-hard problem. Most of the top-ranked algorithms for the Middlesbury Stereo vision comparison \ref{hh08} and thus more local approaches are implemented. 
 
+Consistency check is performed as in equation \ref{eq:consistency} using both disparity images. This removes error that were created by occlusion in any of the images. Thus if the disparities differ they are set to invalid. 
 
-\[ E(D) = \sum\limits_{p}(C(p,D_{p}) + \sum\limits_{q \in N_{p} } P_{1} T [|D_{p} - D_{q}| = 1] + \sum\limits_{q \in N_{p} } P_{2} T [|D_{p} - D_{q}| > 1] \]
+%\begin{equation}\label{eq:cost}
+%\begin{split}
+%D_{p} =  
+%\begin{pmatrix}
+%	D_{bp}	& if|D_{bp} - D_{mq}| \leq 1, \\
+%	D_{inv} & otherwise
+% \end{pmatrix}
+%\end{split}
+%\end{equation} 
 
-
-The rectification of the images guarantees horizontal epipolar lines, and thus the most simple approach would be a 1D scan. Though this leads to high vertical 
-
-The method used is the Semi-Global block matching.
-
-
-
-
-Mutual Information - handling radiometric distances
-
-Smoothness constraint - vertical smoothness
-
-
-
-
+%\begin{equation}\label{eq:qdefinition}
+%\begin{split}
+%q = e_{bm}(p,D_{bp}) 
+% \end{pmatrix}
+%\end{split}
+%\end{equation} 
 
 The matching can be done with either a single pixel or larger pixel patches.
 
-%@ARTICLE{4359315,
-%author={Hirschmuller, H.},
-%journal={Pattern Analysis and Machine Intelligence, IEEE Transactions on},
-%title={Stereo Processing by Semiglobal Matching and Mutual Information},
-%year={2008},
-%month={Feb},
-%volume={30},
-%number={2},
-%pages={328-341},
-%keywords={image matching;image reconstruction;stereo image processing;3D reconstruction;multibaseline matching;mutual information based matching;occlusion detection;orthographic projection;pathwise optimization;pixelwise matching;radiometric transformation;semiglobal matching;stereo processing;subpixel refinement;global optimization;multi-baseline;mutual information;stereo},
-%doi={10.1109/TPAMI.2007.1166},
-%ISSN={0162-8828},}
+The flowchart of the complete system as described in the original article \cite{•} can be seen in figure \ref{fig:complete_system}.
+
+
+\begin{figure}[h!]
+  \centering
+    \includegraphics[width=\textwidth]{graphics/06_vision/complete_system.jpg}
+     \caption{ Flowchart of the complete stereo process for SGBM. } 
+    \label{fig:complete_system}
+\end{figure}
+
 
 \subsection{Reprojection} \label{sec:reprojection}
 
@@ -193,7 +215,7 @@ Undistortion and rectification is done with a simple ROS node called image $imag
 
 \subsection{Blockmatching and reprojection}
 
-The blockmatching is done with the OpenCV function SGBM described in section \ref{sec:correspondence}. Time stamps are checked for arriving images to make sure that they are recorded at the same time. The SGBM then uses the images and a certain set of parameters, discussed in section \ref{sec:optimizing_parameters} to make a disparity map. 
+The blockmatching is done with the OpenCV function createStereoSGBM \cite{opencv} described in section \ref{sec:correspondence}. Time stamps are checked for arriving images to make sure that they are recorded at the same time. The SGBM then uses the images and a certain set of parameters, discussed in section \ref{sec:optimizing_parameters} to make a disparity map. 
 
 %Conversion from int16 to float32 by division of 16.
 
@@ -205,17 +227,11 @@ Here results from the different operations are shown, these results are qualitat
 
 \subsection{Calibration}
 
-From the calibration, the both the distortion parameters and the projection matrixes are returned. The distortion parameters can be seen in equation \ref{eq:distortion}. A more in depth description of the undistorion can be seen in the OpenCV book %\ref{locv}.
+From the calibration, the both the distortion parameters and the projection matrixes are returned. The distortion parameters can be seen in equation \ref{eq:distortion}. A more in depth description of the undistorion can be seen in the OpenCV book \cite{locv}.
 
 
 
-%@Book{locv,
-%author = {Bradski, Gary and Kaehler, Adrian},
-%title = {Learning OpenCV},
-%publisher = {O'Reilly Media},
-%year      = {2008},
-%edition  = {1},
-%}
+
 
 \begin{equation}\label{eq:distortion}
 \begin{split}
@@ -239,9 +255,9 @@ R =
 Figure \ref{fig:rectified} shows and example of two output images from $image\_proc$. These images are both undistorted and rectified by the function. The image have included horizontal lines showing the effectiveness of the image to align features.
 
 \begin{figure}[h!]
-  \caption{Result of undistortion and rectification on an image pair. The horizontal lines shows corresponding pixels in the two images.}
   \centering
     \includegraphics[width=\textwidth]{graphics/06_vision/rectified.jpg}
+      \caption{Result of undistortion and rectification on an image pair. The horizontal lines shows corresponding pixels in the two images.}
     \label{fig:rectified}
 \end{figure}
 
@@ -282,9 +298,9 @@ Using these parameters for the Q-matrix, the disparity image is reprojected to 3
 
 
 \begin{figure}[h!]
-  \caption{Point cloud reprojected using the parameters shown in section \ref{sec:repro_point} performed on the disparity image in figure \ref{fig:disparity}. }
   \centering
     \includegraphics[scale=0.7]{graphics/06_vision/point_cloud_example2.jpg} %trim=l b r t
+  \caption{Point cloud reprojected using the parameters shown in section \ref{sec:repro_point} performed on the disparity image in figure \ref{fig:disparity}. }
     \label{fig:point_repro}
 \end{figure}
 
@@ -330,9 +346,3 @@ Speckle settings are another important parameter, though adjusting this depends 
 
 
 
-%@ONLINE{opencv,
-%title = {Homepage of OpenCV, the program for implementing the vision algorithms.},
-%month = may,
-%year = {2013},
-%howpublished = "\url{http://opencv.org/}"
-%}
