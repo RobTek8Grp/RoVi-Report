@@ -18,109 +18,70 @@ Dense stereo uses two 2D images and converts them to a dense 3D point cloud. Tha
 \subsection{Undistortion and Rectification}
 
 
-The undistortion and rectification is performed automatically and therefore only a short description will be included. By knowledge of these parameters one could make functions take them into account, but it is much more effective to transform the images.
+The undistortion and rectification are performed automatically and therefore only a short description will be included. By knowledge of these parameters one could make functions take them into account, but it is much more effective to transform the images.
 
-As a lens is used for the cameras the normal camera model cannot be used, i.e. a 3D point, X, is mapped to the image plane, x, by $ x = f X/Z $, where f is the focal length and Z is the distance to the camera. Both radial and tangential distortion exist respectively creating the circular and elliptical distortion. By correcting the image for these parameters all pixels now follow the camera model and their projection line can be found.
+As a lens is used for the cameras the pin hole camera model cannot be used, i.e. a 3D point, X, is mapped to the image plane, x, by $ x = f X/Z $, where f is the focal length and Z is the distance to the camera. Both radial and tangential distortion exist respectively creating the circular and elliptical distortion. By correcting the image for these parameters all pixels now follow the camera model and their projection line can be found.
 
-The basic idea of rectification is based on epipolar lines. Epipolar lines are created by knowing the transform between the cameras. For every single point in one camera the line on which it can appear on another camera can be found. That is the epipolar line is a mapping of a pixels projection line in one camera to onto the image plane of another camera. 
+The basic idea of rectification is based on epipolar lines. Epipolar lines are created by knowing the transform between the cameras. For every single point in one camera the line on which it can appear on another camera can be found. That is the epipolar line is a mapping of a pixels projection line in one camera onto the image plane of another camera. 
 
 By knowing the transformation between the two images, epipolar lines can be created for every point. An epipolar line is the line on which any point in one image must be positioned in the other image. Thus making the search for a feature much faster as it only occurs in one dimension.
 
-Rectification takes this one step further. By rectifying the two images the camera planes are made to be parallel. Making the search for correspondence a one dimensional, horizontal task, drastically increasing the speed.
+Rectification takes this one step further. By rectifying the two images the camera planes are angled towards the baseline, thus being parallel. Making the search for correspondence a 1D horizontal task, drastically increasing the speed.
 
-% 
+Thus undistortion is a manipulation done independently for the cameras and the rectification is performed for the two cameras together, using respectively the intrinsic and extrinsic parameter.
 
-Thus undistortion is a manipulation done independently for the cameras and the rectification is performed for the two cameras together, respectively an intrinsic and extrinsic parameter.
-
-
-%Normally when modelling a camera the pinhole model is used, i.g. a 3D point, X, is mapped to the image plane, x, by $ x = f X/Z $, where f is the focal length and Z is the distance to the camera. Though a camera with a single pinhole would have a very long shutter time to gather enough light for an image. Thus to decrease shutter time a lens is used to concentrate more light on the image sensor. But as the lens is not perfect the image no longer complies with the pinhole camera model. By undistorting the images the actual projection point can be found for the images. 
-%
-%\subsubsection{Radial}
-%
-%The radial distortion appears as the lens is not perfectly parabolic, but spherical. That is expressed by an increasing distortion of the image the further one gets from the center of the image. 
-%
-%\[x = x(1 + k_{1} r^{2} + k_{2}^{4} + k_{3}^{6} ) \ldots \] 
-%\[y = y(1 + k_{1} r^{2} + k_{2}^{4} + k_{3}^{6} ) \ldots \]
-%
-%
-%\subsubsection{Tangential}
-%
-%The tangential distortion appears because of a misalignment between the center of the lens and the center of the sensor. Thus the circular distortion appears elliptical and further distortion parameters are needed.
-%
-%\[x = x + [2p_{1}y + p_{2}(r^{2} + 2x^{2} ) \ldots  ] \] 
-%
-%\[y = x + [p_{1}(r^{2} + 2y^{2} ) + 2p_{2}x \ldots ] \] 
-%
-%\subsection{Rectification}
-%
-%To find the 3D position of a point it's position must be known in both images. That is a matching between pixels must be performed for the two images. Rectification is a process which not only speeds up this process, but also increases accuracy.
-%
-%The idea is based on epipolar lines. Epipolar lines are created by knowing the transform between the cameras. For every single point in one camera the line on which it can appear on another camera can be found. The reason that this epipolar line exist is that though the actual 3D position of a projection line for the point can be found. That is the linear connection between X and Z in the camera matrix. Thus by the transform matrix the projection line can be projected into an epipolar line in an other camera.  
-%
-%By knowing the transformation between the two images, epipolar lines can be created for every point. An epipolar line is the line on which any point in one image must be positioned in the other image. Thus making the search for a feature much faster as it only occurs in one dimension.
-%
-%Rectification takes this one step further. By rectifying the two images the camera planes are made to be parallel. Making the search for correspondence a one dimensional horizontal endeavour, drastically increasing the speed.
-%
-%Thus undistortion is a manipulation done independently for the cameras and the rectification is performed for the two cameras together.
-%
-%""" matrixer """
 
 \subsection{Correspondence} \label{sec:correspondence}
 
-Correspondence is the matching between position of pixels in the two images. This creates a disparity map for all pixels in the two images. Though there is no guarantee that the disparity map is actually correct. 
-
+Correspondence is the matching pixels position in different images. This creates a disparity map for all pixels in the images. Though there is no guarantee that the disparity map is actually correct. 
 
 The main goal in dense stereo can be described as minimizing the global error. 
 
-Most of the top-ranked algorithms for the Middlesbury Stereo vision comparison use global optimization \ref{hh08}. Global optimization tries to minimize the overall error in the disparity image. That is creating the optimal disparity image, though as this is an NP-hard problem for the sake of speed these where not considered.
+Most of the top-ranked algorithms for the Middlesbury Stereo vision comparison use global optimization \cite{Hirschmuller2008}. Global optimization tries to minimize the overall error in the disparity image, i.e. creating the optimal disparity image. Though as this is an NP-hard problem for the sake of speed these where not considered.
 
-The opposite approach is a 1D scan. As the rectification of the images guarantees horizontal epipolar lines, the most simple approach would be a 1D scan optimized for the lowest error. Though a single scanline algorithm would lead to a very low vertical consistency of disparity. 
+The opposite approach is a horizontal 1D scan. As the rectification of the images guarantees horizontal epipolar lines, the most simple approach would be a 1D scan optimized for the lowest error. The problem is that a single scanline algorithm would lead to a very low vertical consistency of disparity. 
 
-Instead a semi global approach is used, a compromise between the two methods. 
+Instead a semi global approach is used as a compromise between the two methods. 
 
-The idea of the semi global matching is an optimization of the disparity locally, but consistent. Following equation \ref{eq:cost} the penalty for small changes and large changes are distinguished as respectively $P_{1}$ and $P_{2}$.
+The idea of the semi global matching is an optimization of the disparity locally, but consistent. Following equation \ref{eq:cost} the penalty for small changes and large changes are distinguished as respectively $P_{1}$ and $P_{2}$. Here C is the pixel wise matching cost for disparity $D_{\textbf{p}}$ at position \textbf{p} and \textbf{q} is nearby positions.
 
 \begin{equation}\label{eq:cost}
 \begin{split}
-E(D) = \sum\limits_{p}(C(p,D_{p}) + \sum\limits_{q \in N_{p} } P_{1} T [|D_{p} - D_{q}| = 1] + \sum\limits_{q \in N_{p} } P_{2} T [|D_{p} - D_{q}| > 1]
+E(D) = \sum\limits_{\textbf{p}}(C(\textbf{p},D_{\textbf{p}}) + \sum\limits_{\textbf{q} \in N_{\textbf{p}} } P_{1} T [|D_{\textbf{p}} - D_{\textbf{q}}| = 1] + \sum\limits_{\textbf{q} \in N_{\textbf{p}} } P_{2} T [|D_{\textbf{p}} - D_{\textbf{q}}| > 1]
 \end{split}
 \end{equation} 
 
-The optimization is then done as a shortest path for multiple 1D paths. Figure \ref{fig:paths} shows an example of this using 16 paths, in the actual implementation only 5 paths are used. A disparity range for which the path is found is defined beforehand, thus a limit is set to which disparity’s can be found. 
+The optimization is then done as a shortest path for multiple 1D paths. Figure \ref{fig:paths} shows an example of this using 16 paths, in the actual implementation only 5 paths are used for the sake of speed. A disparity range for which the path is found is defined beforehand, thus a limit is set to which disparity’s can be found. 
 
 \begin{figure}[h!]
   \centering
-    \includegraphics[width=\textwidth]{graphics/06_vision/cost_aggregation.jpg}
-      \caption{Costs are summed for the paths using specific disparities and the disparity with the shortest path is found.}
+    \includegraphics[scale=0.2]{graphics/06_vision/cost_aggregation.jpg}
+      \caption{Costs for all directions are calculated using specific disparities and the disparity with the shortest path is found.}
     \label{fig:paths}
 \end{figure}
 
-Mutual information \cite{egnal2000mutual} is used as the pixelwise matching. Using mutual information makes the algorithm much better at handling handling radiometric distances. 
+Mutual information \cite{egnal2000mutual} is used as the pixelwise matching. Using mutual information makes the algorithm much better at handling handling radiometric distances. The mutual information needs the disparity map to calculate the pixel matching cost, $ C_{MI} $. Because of that the algorithm starts with a downscaled disparity guess and consistently runs through and upscales until it reaches full size. 
 
 
+Consistency check is performed as in equation \ref{eq:consistency} using both disparity images. This removes errors that were created by occlusion in any of the images. Thus if the disparities differ they are set to invalid. 
 
-Consistency check is performed as in equation \ref{eq:consistency} using both disparity images. This removes error that were created by occlusion in any of the images. Thus if the disparities differ they are set to invalid. 
-
-%\begin{equation}\label{eq:cost}
-%\begin{split}
-%D_{p} =  
-%\begin{pmatrix}
-%	D_{bp}	& if|D_{bp} - D_{mq}| \leq 1, \\
-%	D_{inv} & otherwise
-% \end{pmatrix}
-%\end{split}
-%\end{equation} 
+\begin{equation}\label{eq:consistency}
+\begin{split}
+D_{p} =  
+\begin{pmatrix}
+	D_{bp}	&  if|D_{bp} - D_{mq}| \leq 1, \\
+	D_{inv} & otherwise
+ \end{pmatrix}
+\end{split}
+\end{equation} 
 
 %\begin{equation}\label{eq:qdefinition}
-%\begin{split}
-%q = e_{bm}(p,D_{bp}) 
-% \end{pmatrix}
-%\end{split}
+% \begin{split}
+%  q = e_{bm}(p,D_{bp}) 
+% \end{split}
 %\end{equation} 
 
-The matching can be done with either a single pixel or larger pixel patches.
-
-The flowchart of the complete system as described in the original article \cite{•} can be seen in figure \ref{fig:complete_system}.
+The flowchart of the complete system as described in the original article \cite{Hirschmuller2008} can be seen in figure \ref{fig:complete_system}.
 
 
 \begin{figure}[h!]
@@ -133,37 +94,41 @@ The flowchart of the complete system as described in the original article \cite{
 
 \subsection{Reprojection} \label{sec:reprojection}
 
-During the calibration of the cameras, projections matrices were obtained for both cameras. The projection matrices are based on the left camera lens, meaning the baseline, distance to the left camera, is 0 for the left matrix. By multiplying the projection matrix with a 3D point in the left cameras  compared to the left camera, the points position in the image can be found. That is:
+During the calibration of the cameras, projection matrices were obtained for both cameras. The projection matrices are based on the left camera lens, meaning the baseline, distance to the left camera, is 0 for the left matrix. By multiplying the projection matrix with a 3D point in the left cameras coordinate system, the points position in the image can be found as in equation \ref{eq:projection}. 
 
-\[ 
-\begin{pmatrix}
-  x \\
-  y \\
-  \omega 
- \end{pmatrix}	
- = 
- \begin{pmatrix}
-  F_{x} & 0 & C_{x} & -F_{x}T_{x} \\
-  0 & F_{y} & C_{y} & 0 \\
-  0 & 0 & 1 & 0
- \end{pmatrix}
- \begin{pmatrix}
-  X \\
-  Y \\
-  Z \\
-  1 
- \end{pmatrix}	
-\]
+
+\begin{equation}\label{eq:projection}
+ \begin{split}
+  \begin{pmatrix}
+   x \\
+   y \\
+   \omega 
+  \end{pmatrix}	
+  = 
+  \begin{pmatrix}
+    F_{x} & 0 & C_{x} & -F_{x}T_{x} \\
+    0 & F_{y} & C_{y} & 0 \\
+    0 & 0 & 1 & 0
+  \end{pmatrix}
+  \begin{pmatrix}
+   X \\
+   Y \\
+   Z \\
+   1 
+  \end{pmatrix}	
+ \end{split}
+\end{equation}  
+
 
 Here $F_{x}$ and $F_{y}$ are the focal length of the camera, $C_{x}$ and $C_{y}$ are the middle position of the image.
 
 $T_{x}$ is the translation to the left camera. That is for the right camera it is the baseline and for the left it is 0. The baseline is measured in millimetres. 
 
-But goal is to obtain the opposite, the transform from 2D to 3D. That is the action of converting the obtained disparity map into a 3D point cloud. To do that the x and y positions are combined with the disparity. Thus multiplying with the Q matrix the 3D map position can be found.
+But the goal is to obtain the opposite, the transform from 2D to 3D. That is the action of converting the obtained disparity map into a 3D point cloud. To do that the x and y positions are combined with the disparity. Thus multiplying with the Q matrix the 3D map position can be found.
 
 \[ Q [ x \ y \ d \ 1 ]^{T} = [ X \ Y \ Z \ W ]^{T} \]
 
-Where the Q matrix is defined by the right projection matrix, except for the $C_{x}'$.
+Where the Q matrix is defined by the parameters in the right projection matrix, except for the $C_{x}'$.
 
 \[
 Q =
@@ -211,25 +176,23 @@ To perform the undistortion and rectification the intrinsic and extrinsic parame
 
 \subsection{Undistortion and rectification}
 
-Undistortion and rectification is done with a simple ROS node called image $image\_proc$. By setting giving the raw images together with a camera calibration file, created beforehand in section \ref{sec:calibration}. It uses these and returns rectified and undistorted images ready to be used by block matching algorithms.
+Undistortion and rectification is done with a simple ROS node $image\_proc$. By giving the raw images together with a camera calibration file, created beforehand in section \ref{sec:calibration}. It uses these and returns rectified and undistorted images ready to be used by block matching algorithms.
 
 \subsection{Blockmatching and reprojection}
 
-The blockmatching is done with the OpenCV function createStereoSGBM \cite{opencv} described in section \ref{sec:correspondence}. Time stamps are checked for arriving images to make sure that they are recorded at the same time. The SGBM then uses the images and a certain set of parameters, discussed in section \ref{sec:optimizing_parameters} to make a disparity map. 
+The blockmatching is done with the OpenCV function createStereoSGBM \cite{opencv} described in section \ref{sec:correspondence}. Time stamps are checked for arriving images to make sure that they are recorded at the same time. The SGBM then uses the images and a certain set of parameters to make a disparity map. As most of these parameters are application specific they discussed in section \ref{sec:optimizing_parameters}. 
 
 %Conversion from int16 to float32 by division of 16.
 
-A ROS node is created takes the rectified images, creates a disparity map and reprojects this to 3D using OpenCV functions.
-
+Simply put ROS node is created that uses the rectified images, creates a disparity map and reprojects this to 3D using OpenCV functions and publishes them.
+ 
 \section{Results}
 
 Here results from the different operations are shown, these results are qualitative to show that the concept works not quantitative for a measurement of how well.
 
 \subsection{Calibration}
 
-From the calibration, the both the distortion parameters and the projection matrixes are returned. The distortion parameters can be seen in equation \ref{eq:distortion}. A more in depth description of the undistorion can be seen in the OpenCV book \cite{locv}.
-
-
+From the calibration both the distortion, rectification and projection matrixes are returned. The distortion parameters can be seen in equation \ref{eq:distortion}. A more in depth description of the undistorion can be seen in the OpenCV book \cite{locv}.
 
 
 
@@ -266,9 +229,9 @@ Figure \ref{fig:rectified} shows and example of two output images from $image\_p
 From two rectified images the disparity map can be created. Figure \ref{fig:disparity} is an example of such a disparity map. The overall structure of the scene is recognizable, but it can be seen that algorithm does not necessarily guarantees complete coverage with standard parameters. Thus section \ref{sec:optimizing_parameters} will include a discussion of the selection of these parameters.
 
 \begin{figure}[h!]
-  \caption{Disparity image for the two images shown in figure \ref{fig:rectified}. }
-  \centering
+   \centering
     \includegraphics[scale=0.4]{graphics/06_vision/disparity_example.jpg}
+    \caption{Disparity image for the two images shown in figure \ref{fig:rectified}. }
     \label{fig:disparity}
 \end{figure}
 
@@ -307,7 +270,7 @@ Using these parameters for the Q-matrix, the disparity image is reprojected to 3
 
 \section{ Optimizing parameters towards the task } \label{sec:optimizing_parameters}
 
-In most of the functions the input were non-adjustable values, but for the SGBM there are certain parameters were no single answers exist. The most important being the disparity range i.e. how far the algorithm will search for 
+In most of the functions the input were non-adjustable values, but for the SGBM there are certain parameters were no single answers exist. The most important being the disparity range i.e. how far the algorithm will search for disparities.
 
 
 When the 3D positions were extracted in section \ref{sec:reprojection} the connection in equation \ref{eq:disp1} between distance and disparity were found.
@@ -340,9 +303,5 @@ The algorithm is only able to scale the disparity in ranges of 16.
 
 From these equations the minimum and maximum disparity are respectively chosen to be 16*16=256 and                                   16*24=384, resulting in a range from 0.41 to 0.61 meters. Thus if the distance to object should move outside this range it will not be found.
 
-Speckle settings are another important parameter, though adjusting this depends entirely on the use of the point cloud. If the reconstruction doesn't take care of noise the speckle-size should be very low. The speckle range should also accommodate the point cloud so as to keep the signal/noise as high as possible, but still fitting the system.
-
-
-
-
+Speckle settings are another important parameter. The speckle-size is the minimum size of a path for it not to be removed as noise and the speckle-range is how large the difference can be between neighbouring pixels for them to still be considered from the same path. Though adjusting this depends entirely on the use of the point cloud. If the reconstruction doesn't take care of noise the speckle-size should be very low. The speckle range should also accommodate the point cloud so as to keep the signal/noise as high as possible, but still fitting the system. 
 
