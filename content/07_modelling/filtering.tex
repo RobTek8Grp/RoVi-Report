@@ -46,4 +46,26 @@ The voxel-grid filter works by splitting down the ROI into smaller regions (voxe
 The individual point clouds from the individual views of the object are passed through the filter, the individual cloud is then stitched into another common cloud which is assembled from a number of individual clouds, predetermined by the decision making layer. The stitching of each cloud happens in the static frame, due to the transformation of the input to the filter node. The point clouds are stitched in the order at which they are received, thus the first frame becomes a sort of reference frame for the following frames. This is because the algorithm used for stitching the clouds together actually calculates a transform at which new incoming point clouds are transformed. The algorithm utilised for stitching is Iterative Closest Point (ICP). This is also implemented in in PCL and therefore this implementation (\texttt{pcl::IterativeClosestPointNonLinear< \ldots , \ldots >}) of the algorithm utilised. The ICP algorithm has it downsides. For example if a cloud is not aligned correctly, this will cause an error to propagate thought to the following clouds which could lead to a rather distorted model of the object of interest\cite{choe2007registration}. The algorithm will be described in further details in chapter \texttt{ref??}\marginnote{Ref til calibration chapter}.
 
 \subsection{Results}
-\marginnote{Missing section content}
+Preliminary results of the point cloud stitching is shortly presented and discussed here. 
+
+\begin{figure}[htb]
+	\begin{center}
+		\includegraphics[scale=0.7,trim=0 0 0 0]{graphics/07_modelling/bottle.png}%trim=l b r t
+		\caption{Illustrates a stitching of a water bottle. (Carmine data).}
+		\label{fig:bottle}
+	\end{center}
+\end{figure}
+
+\noindent As seen in figure \ref{fig:bottle} the stitching seems reasonable compared to figure \texttt{Bottle figure} \marginnote{Picture of bottle needed}. Inspecting the stitching further reveals a layered structure due to bad alignment as seen in figure \ref{fig:bottle_slice}.
+
+\begin{figure}[htb]
+	\begin{center}
+		\includegraphics[scale=0.7,trim=0 0 0 0]{graphics/07_modelling/slice.png}%trim=l b r t
+		\caption{Illustrates a slice of the stitching seen in figure \ref{fig:bottle}. (Carmine data).}
+		\label{fig:bottle_slice}
+	\end{center}
+\end{figure}
+
+\noindent The slice of the stitching seen in figure \ref{fig:bottle_slice} indicates that the alignment of the individual point clouds are not perfect. This can be causes by the measurements not being perfect due to uncertainties in the system. It is suggested that measuring uncertainties and non-calibrated frames is creating the effect seen in slice of the bottle.\\
+\\
+It is not known if the reconstruction scheme can handle this layering in the point cloud, but it is assumed it can, but testing this will reveal if the reconstruction method is capable of reconstructing an approximation of the surface of an object.
