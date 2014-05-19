@@ -65,15 +65,21 @@ Mutual information \cite{egnal2000mutual} is used as the pixelwise matching. Usi
 
 Consistency check is performed as in equation \ref{eq:consistency} using both disparity images. This removes errors that were created by occlusion in any of the images. Thus if the disparities differ they are set to invalid. 
 
-\begin{equation}\label{eq:consistency}
-\begin{split}
-D_{p} =  
-\begin{pmatrix}
-	D_{bp}	&  if|D_{bp} - D_{mq}| \leq 1, \\
-	D_{inv} & otherwise
- \end{pmatrix}
-\end{split}
-\end{equation} 
+%\begin{equation}\label{eq:consistency}
+%D_{p} =  
+%\left{\begin{matrix}
+%D_{bp}	&  if|D_{bp} - D_{mq}| \leq 1, \\
+%D_{inv} & otherwise
+%\end{matrix}\right.
+%\end{equation} 
+
+\begin{equation} \label{eq:consistency}
+D_{p} =
+\left\{\begin{matrix}
+D_{bp}	&  if|D_{bp} - D_{mq}| \leq 1, \\
+D_{inv} & otherwise
+\end{matrix}\right.
+\end{equation}\\ 
 
 %\begin{equation}\label{eq:qdefinition}
 % \begin{split}
@@ -202,9 +208,9 @@ From the calibration both the distortion, rectification and projection matrixes 
 \end{split}
 \end{equation} 
 
-The rotation matrix for rectification are also returned from the calibration. It can be seen that the rotation needed is small but still needed for the 1D correspondence to work. 
+The rotation matrix for rectification are also returned from the calibration. From equation \ref{eq:rectification} it can be seen that the rotation needed is small, but it is still needed for the 1D correspondence search to work. 
 
-\begin{equation}\label{eq:distortion}
+\begin{equation}\label{eq:rectification}
 \begin{split}
 R =
  \begin{pmatrix}
