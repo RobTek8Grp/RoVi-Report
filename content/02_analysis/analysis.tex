@@ -10,10 +10,7 @@ The system must be capable of performing 3D reconstruction based on the eye-in-h
 \end{figure}
 
 \subsection{Decision maker}
-The decision maker is the highest level of abstraction and authority in the system and is responsible for controlling the task, which in this case means moving the robot arm to the right poses and capture images from the sensor. The task can be broken down to starting the process, choosing a pose, executing the pose, capturing the image and ending the task when there are no more poses needed. Any further work like next best view planning, automatic calibration or other alternative tasks will be implemented in the decision maker and it should therefore be general and easy to expand. In the current application, the desired poses will be generated to capture the object from a number of discrete locations on a sphere subject to distance and viewpoint constraints. The captions must be evenly distributed to cover the entire object. 
-
-\marginnote{Errors...} 
-
+The decision maker is the highest level of abstraction and authority in the system and is responsible for controlling the task, which in this case means moving the robot arm to the right poses and capture images from the sensor. The task can be broken down to choosing a pose, executing the pose capturing the image and ending the task when there are no more poses needed. Any further work like next best view planning, automatic calibration or other alternative tasks will be implemented in the decision maker and it should therefore be general and easy to expand. In the current application, the desired poses will be generated to capture the object from a number of discrete locations on a sphere subject to distance and viewpoint constraints. The captions must be evenly distributed to cover the entire object. The decision maker must be able to handle errors such as unreachable pose requests.
 
 \subsection{Robot planner}
 The robot planner is the top level abstraction of the robot arm and takes desired pose in 3D space as input generating a desired path in joint space as output. It is responsible for generating the path between the current pose of the robot and the desired pose. The path is subject to a number of physical constraints and must therefore be generated in steps. The first step is to find a collision free path through the workspace thus requiring a kinematic model of the robot as well as a priori 3D models of robot and work cell. When a suitable path has been found, the path must be optimised for length, clearance and undesired movement. In cases where a collision free path cannot be found, the robot planner must relay this back to the decision maker. Implementations in the robot planner must be robust and therefore make use of some of the widely used open source libraries and ROS stacks should be facilitated. 
@@ -22,16 +19,7 @@ The robot planner is the top level abstraction of the robot arm and takes desire
 The robot controller executes the path and thus handles communication to low level controllers and feedback sensors on the robot. The path is executed in a closed-loop control system and therefore the joint states realising the path must be converted to actuator velocities. This is done by adding a time dimension to the path, subject to joint velocity constraints. The time tessellated path is further blended to meet acceleration and jerk constraints and is finally interpolated and executed in the control loop. Implementations should be robust and therefore make use of some of the many open source libraries and ROS stacks. 
 
 \subsection{Work cell}
-The workcell contains a six degrees of freedom RX60 robot arm with a bumblebee stereo camera and a carmine sensor mounted on the end effector(Figure \ref{fig:block_diagram}). The work cell interface is based on a ROS node communicating with the physical robot controller and a node broadcasting data from the camera. Since the RX60 has limited reach, the objects being modelled are hanged from a point over the robot. The a priori model of the work cell contains only the robot arm and simplified bounding boxes representing the immediate surroundings of the robot. 
-
-\marginnote{Image missing}
-%\begin{figure}[htb]
-%	\begin{center}
-%		\includegraphics[scale=0.5,trim=0 0 0 0]{graphics/02_analysis/work_cell.png}%trim=l b r t
-%		\caption{The work cell containing RX60 robot mounted with stereo camera.}
-%		\label{fig:work_cell}
-%	\end{center}
-%\end{figure}
+The workcell contains a six degrees of freedom RX60 robot arm with a bumblebee stereo camera and a carmine sensor mounted on the end effector. The work cell interface is based on a ROS node communicating with the physical robot controller and a node broadcasting data from the camera. Since the RX60 has limited reach, the objects being modelled are hanged from a point over the robot. The a priori model of the work cell contains only the robot arm and simplified bounding boxes representing the immediate surroundings of the robot. 
 
 \subsection{Vision}
 The vision module takes input from the stereo camera mounted on the end effector of the robot and from that generates a 3D point cloud. The images are undistorted and rectified using calibration parameters obtained independently of the system using the ROS calibration node. When the robot is at rest in the desired pose, a signal from the decision maker tells the vision component to capture the two images from the sensor. From the two images a disparity image is formed and by using the obtained projective parameters the point cloud is generated. Implementation should be based on ROS packages and the OpenCV library for image processing.
@@ -46,8 +34,7 @@ The calibration process is responsible for calibrating the system prior to runni
 \subsection{Requirements specification}
 The above analysis leads to a requirements specification (Table \ref{tab:requirements}) for the combined system.
 
-\begin{table}
-	\label{tab:requirements}
+\begin{table}\label{tab:requirements}
 	\caption{Requirements specification}
     \begin{tabular}{|l|l|l|}
     \hline
