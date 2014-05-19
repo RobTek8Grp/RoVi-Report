@@ -1,5 +1,5 @@
 \chapter{Decision making}
-The decision making component generates 8 poses evenly distributes on an equidistant\marginnote{redundant word?} sphere of radius 0.5 meters always with the viewpoint at the center of the sphere. As the object is not static in the scene, the center of the sphere can be moved by an interactive marker as shown on figure \ref{fig:robot_moving_around_object}. The poses are executed by the planner, and when the desired pose has been reached a message will be passed to the sensor nodes.
+The decision making component generates 8 poses evenly distributes on an sphere of radius 0.5 meters always with the viewpoint at the center of the sphere. As the object is not static in the scene, the center of the sphere can be moved by an interactive marker as shown on figure \ref{fig:robot_moving_around_object}. The poses are executed by the planner, and when the desired pose has been reached a message is be passed to the sensor nodes to do a capture.
 
 
 \begin{figure}[htb]
@@ -25,8 +25,14 @@ For easy offline manipulation of data a messagetype has been defined to carry th
 	\end{center}
 \end{figure}
 
+\subsection{State Machine}
+The task is performed as a state machine (Figure \ref{fig:state_diagram}) consisting of two main states, move and capture. The move state executes a list of poses by issuing one pose at a time to the robot planner and wait for the robot state to reach within a threshold of the desired pose. Arriving at the pose transitions the state machine into the capture state, signalling the sensor node to collect data. Based on a time delay, the capture state transitions back to the move state. When the list of poses has all been executed, the move state remains at the final pose.
 
-%Capture signal
 
-%\subsection{Error handling}
-%We do not make errors!
+\begin{figure}[htb]
+	\begin{center}
+		\includegraphics[scale=0.5,trim=0 0 0 0]{graphics/04_decisionmaking/state_diagram.pdf}%trim=l b r t
+		\caption{State diagram of the decision maker}
+		\label{fig:state_diagram}
+	\end{center}
+\end{figure}
