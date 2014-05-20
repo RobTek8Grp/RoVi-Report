@@ -103,9 +103,10 @@ When the MoveIt setup tool has been run, a ROS package has been generated with t
 \label{sec:planning}
 % ------------ Things that we have been discussing in class do not need to be described in very fine detail -----------
 
-Tough many planners are available in the OMPL, it has been chosen to use Probabilistic RoadMap (PRM) \marginnote{OMPL har tre forskellige: geometric, geometric lazy og geometric PRMstar. Hvilken bruger vi?}for this project. PRM is a probabilistic complete multi query planning algorithm with two phases. First the learning phase generates roadmaps in the configuration space by random sampling and collision checking, next the query phase is used to connect the start and goal configuration to the roadmap and within the roadmap find a valid path. The PRM planner has been chosen because the work cell is static and thus the roadmap can be generated beforehand to speed up the planning requests. Which planner to use in MoveIt is defined in the planning request to allow the use of specific planners for specific tasks.
+Tough many planners are available in the OMPL, it has been chosen to use a lazy version of Probabilistic Road Map (PRM) for this project. PRM is a probabilistic complete multi query planning algorithm with two phases. First the learning phase generates roadmaps in the configuration space by random sampling and collision checking, next the query phase is used to connect the start and goal configuration to the roadmap and within the roadmap find a valid path. The PRM planner has been chosen because the work cell is static and thus the roadmap can be generated beforehand to speed up the planning requests. The lazy implementation means that instead of sampling a fixed number of configurations or sampling for a specific amount of time, the entire workspace is sampled to build the road map, but no collision checking is performed until the query phase. Since collision checking is the most time consuming part of building the road map, the lazy approach makes the learning phase much faster at the expense of a little slower queries. Which planner to use in MoveIt is defined in the planning request to allow the use of specific planners for specific tasks. \\
 
-\marginnote{Vi har intet om optimisation...}
+\subsection{Path optimisation}
+OMPL supports several optimisation objectives, but default is optimizing for path length based on path pruning, where the configurations in the path are iteratively analysed to remove redundant steps, thus straightening the path. Since this application has no special demands regarding clearance, energy consumption or unnecessary joint movement, optimising for shortest path was chosen.
 
 % --- BRING UP SOME CODE FROM OMPL!
 
@@ -139,3 +140,8 @@ When MoveIt has generated a trajectory for the robot, a controller needs to take
 %Robot controller
 %
 %C++ planning interface
+
+\section{Evaluation}
+Although a multitude of evaluation methods could be used to quantify the planning and control, only a visual inspection is included here. Since all the components comprising planner and control have been thoroughly tested and documented within the libraries presenting them, only the combination needs evaluation. A video showing the robot moving between the 24 viewpoints is available on youtube (http://...)\marginnote{link} as documentation.\\
+
+The planner runs for approximately ten seconds before the robot starts moving fluently between the first 18 poses pausing for ten seconds at each pose as dictated by the decision making. Planning seems optimised, as no extra joint movement or detours are observed. At the 18th pose the robot waits longer because it is in the elbow down configuration and has to pass a radiator. After approximately 30 seconds, the robot rises the elbow joint, and safely passes the obstacle. This was the only time a little unnecessary movement was observed, as the end-effector turns the camera more than needed. As all poses are reached within small tolerances, it is concluded that the robot planner and robot controller meet the requirements for this application.
