@@ -182,7 +182,7 @@ The block matching is done with the OpenCV function createStereoSGBM \cite{openc
 %Conversion from int16 to float32 by division of 16.
 Block matching and reprojection are implemented in a ROS node taking the rectified images as input, creating the disparity map and reprojection based on the openCV function.
  
-\section{Results}
+\section{Evaluation}
 Here results from the different operations are shown, these results are qualitative to show that the concept works not quantitative for a measurement of how well.
 
 \subsection{Calibration}
@@ -260,7 +260,7 @@ Using these parameters for the Q-matrix, the disparity image is reprojected to 3
 \end{figure}
 
 
-\section{ Optimizing parameters towards the task } \label{sec:optimizing_parameters}
+\section{Optimizing parameters towards the task } \label{sec:optimizing_parameters}
 
 In most of the functions the input were non-adjustable values, but for the SGBM there are certain parameters where no single answers exist. The most important being the disparity range i.e. how far the algorithm will search for disparities.
 

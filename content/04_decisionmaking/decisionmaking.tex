@@ -14,18 +14,7 @@ The decision making component generates 8 poses evenly distributed on an sphere 
 %SMACH = Next best view ready code
 %state machine diagram?
 
-\subsection{Special message type}
-For easy offline manipulation of data a messagetype has been defined to carry the information acquired at each pose. Using this format allows the data to be captured at one point in time and processing at another by using rosbag between the nodes. Initially the message only contains the pose id, max number of poses and poses of the sensors, it is then passed on to the stereo camera node where the captured images are appended. Afterwards the dense\_stereo node creates and appends 3D information from the captured images and finally it can be passed to the reconstruction node.
-
-\begin{figure}[htb]
-	\begin{center}
-		\includegraphics[scale=0.5,trim=0 50 0 0]{graphics/04_decisionmaking/message_path.png}%trim=l b r t
-		\caption{The path of the message between the related nodes in the system. In each node new data is appended}
-		\label{fig:message_path}
-	\end{center}
-\end{figure}
-
-\subsection{State Machine}
+\section{State Machine}
 The task is performed as a state machine (Figure \ref{fig:state_diagram}) consisting of two main states, move and capture. The move state executes a list of poses by issuing one pose at a time to the robot planner and wait for the robot state to reach within a threshold of the desired pose. Arriving at the pose transitions the state machine into the capture state, signalling the sensor node to collect data. Based on a time delay, the capture state transitions back to the move state. When the list of poses has all been executed, the move state remains at the final pose.
 
 
@@ -36,3 +25,16 @@ The task is performed as a state machine (Figure \ref{fig:state_diagram}) consis
 		\label{fig:state_diagram}
 	\end{center}
 \end{figure}
+
+\section{Special message type}
+For easy offline manipulation of data a messagetype has been defined to carry the information acquired at each pose. Using this format allows the data to be captured at one point in time and processing at another by using rosbag between the nodes. Initially the message only contains the pose id, max number of poses and poses of the sensors, it is then passed on to the stereo camera node where the captured images are appended. Afterwards the dense\_stereo node creates and appends 3D information from the captured images and finally it can be passed to the reconstruction node.
+
+\begin{figure}[htb]
+	\begin{center}
+		\includegraphics[scale=0.5,trim=0 50 0 0]{graphics/04_decisionmaking/message_path.png}%trim=l b r t
+		\caption{The path of the message between the related nodes in the system. In each node new data is appended}
+		\label{fig:message_path}
+	\end{center}
+\end{figure}
+
+

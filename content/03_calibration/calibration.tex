@@ -2,7 +2,7 @@
 In the process of combining data from several view points, a model of the system is needed as to align the measurements correctly. An idealised model can be formulated based on motion theory, but in inherently imperfect hence the need for calibration. In the context of eye-in-hand based surface reconstruction, especially calibrating the kinematic chain from object robot base is important in order to combine data from several views. Calibration of robot systems has received considerable attention and continues to be an active field of research. A solution for the unknown transforms from camera to end effector and from object to robot base can be obtained relatively easy by solving a homogeneous transform \cite{Shiu1989}. Several algorithms for more or less autonomous calibration has been proposed \cite{Tsai1988, Tsai1989} often simultaneously calibrating camera and hand-eye \cite{Malm2003, Zhao2008, Jordt2009}. The calibration process presented here is based on the linear method \cite{Tsai1988} with some application specific modifications.
 
 
-\subsection{Notation}
+\section{Notation}
 In the formulation of hand-eye calibration a number of homogeneous transforms between frames are be described. Most literature uses a mathematically founded notation of \textit{Ai}, \textit{Bi}, \textit{A}, \textit{B}, \textit{X} and \textit{Y} leading to nice and clean equations. In this work a more explicit and engineering friendly notation will be used stating for each transform the state index (since there are several different robot states involved to allow different views of the object), the name of the frame described and the name of the reference frame. Examples of the notation are explained in table \ref{tab:notation}. The transform is a a 4x4 matrix containing a 3x3 rotation matrix and a 1x3 translation vector. The terms end-effector and Tool Center Point(TCP) will be used interchangeably.\\
 
 \begin{table}[h]
@@ -24,7 +24,7 @@ $[T_{i-1,i}]_{camera}$        & The camera frame at state \textit{i} relative to
 	\end{center}
 \end{figure}
 
-\subsection{Linear hand-eye calibration}
+\section{Linear hand-eye calibration}
 \noindent Looking at figure \ref{fig:hand_eye_transforms} (left and right) it is clear that a kinematic chain from the object to the robot base can be formulated.\\
 
 \begin{equation}
@@ -83,7 +83,7 @@ $[T_{i-1,i}]_{camera}$        & The camera frame at state \textit{i} relative to
 
 \noindent Normally the calibration is made by capturing views of a chessboard marker from several robot states. There are however two rather implicit assumptions \cite{Horaud1995} not justified by this approach. First the calibration of the camera assumes a perfect pinhole model and that the optical axis of the camera is perpendicular to the object, but equation \ref{equ:closed_loop} assumes that the object is static, which for most practical objects are contradictions. There are several approaches to solving this, but those are outside the scope of this discussion. 
 
-\subsection{Application specific method}
+\section{Application specific method}
 In this work an alternative approach is taken to include more of the possible uncertainties in the hand-eye calibration and to account for the unjustified assumptions mentioned above. Uncertainties in the vision process generating the transform from object to camera could stem from inaccurate parameters, the pinhole model assumption or pixel quantisation errors to mention a few. Uncertainties in the transform from end-effector to base can stem from mechanical inaccuracies, wear and tear, quantisation errors in encoders or from dynamics, also just to mention a few. \\
 
 \noindent Solving the linear system from equation \ref{eq:linear_equations} is equivalent to making a least-squares fit and thus after calibration a fixed transform minimising the error over all robot states is applied to each state. The problem with this is that a linear method is used to estimate errors that are by no means linear. Furthermore the method is vulnerable to outliers, since one faulty view will influence all others. Instead a method capable of fitting non-linear functions is desirable, but to use such, individual errors at each robot state must be known. Furthermore it is desired to include as much of the reconstruction process as possible inside the the calibration loop, to account for as many errors as possible. Therefore it is desirable to base the calibration on the point clouds instead of the camera output and furthermore it is desirable to evaluate each data pair instead of pooling them for all views.\\

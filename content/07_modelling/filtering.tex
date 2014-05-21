@@ -48,7 +48,7 @@ The point clouds are transformed to the base frame and the first point cloud to 
 
 A version of the ICP algorithm using Levenberg-Marquardt and quaternion optimisation\cite{Rusinkiewicz} is implemented in PCL (\texttt{pcl::IterativeClosestPointNonLinear< \ldots , \ldots >}). The ICP algorithm is only guaranteed to find local maxima and as such depends on the previous alignment being relatively good, which is fulfilled by the transformation to base frame. Furthermore if a cloud is not aligned correctly, this will cause an error to propagate through to the following clouds leading to a rather distorted model of the object of interest\cite{choe2007registration}. The ICP algorithm implicitly makes the assumption of correspondence between neighbouring points and furthermore assumes that the following error is normally distributed with zero mean.
 
-\subsection{Results}
+\section{Evaluation}
 Preliminary results of the point cloud stitching is shortly presented and discussed here. 
 
 \begin{figure}[htb]
