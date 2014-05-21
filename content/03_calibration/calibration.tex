@@ -83,8 +83,6 @@ $[T_{i-1,i}]_{camera}$        & The camera frame at state \textit{i} relative to
 
 \noindent Normally the calibration is made by capturing views of a chessboard marker from several robot states. There are however two rather implicit assumptions \cite{Horaud1995} not justified by this approach. First the calibration of the camera assumes a perfect pinhole model and that the optical axis of the camera is perpendicular to the object, but equation \ref{equ:closed_loop} assumes that the object is static, which for most practical objects are contradictions. There are several approaches to solving this, but those are outside the scope of this discussion. 
 
-\marginnote{Refs} 
-
 \subsection{Application specific method}
 In this work an alternative approach is taken to include more of the possible uncertainties in the hand-eye calibration and to account for the unjustified assumptions mentioned above. Uncertainties in the vision process generating the transform from object to camera could stem from inaccurate parameters, the pinhole model assumption or pixel quantisation errors to mention a few. Uncertainties in the transform from end-effector to base can stem from mechanical inaccuracies, wear and tear, quantisation errors in encoders or from dynamics, also just to mention a few. \\
 
@@ -100,13 +98,23 @@ In this work an alternative approach is taken to include more of the possible un
 \\ 
 \Updownarrow \\ 
 \\ 
-[T_{12}]_{PC} \cdot [T_{23}]_{PC} \cdot [T_{34}]_{PC} \cdot [T_{45}]_{PC} \cdot [T_{51}]_{PC} = [T_{1}]_{camera}^{error}
+[T_{12}]_{PC} \cdot [T_{23}]_{PC} \cdot [T_{34}]_{PC} \cdot [T_{45}]_{PC} \cdot [T_{51}]_{PC} = [T_{1}]_{camera}^{correction}
 \end{matrix}
 \end{equation}\\ 
 
-\noindent Looking at the closed loop in figure \ref{fig:new_calibration} if say the view at state 3 had a large error, that error would in the evaluation of all other states result in two contributions ($ T_{23} $ and $ T_{34} $) of equal magnitude and opposite sign. This means the method is robust to outliers. Now having estimated the error at each pose, a non-linear method can be used to estimate the calibrated transform. The ideal method would be one eliminating the error in each state, while interpolating in between. However such a method cannot be made with a static transform.
+\noindent Looking at the closed loop in figure \ref{fig:new_calibration} if say the view at state 3 had a large error, that error would in the evaluation of all other states result in two contributions ($ T_{23} $ and $ T_{34} $) of equal magnitude and opposite sign. This means the method is robust to outliers. Now having estimated the error at each pose, a non-linear method can be used to estimate the calibrated transform. The ideal method would be one eliminating the error in each state, while interpolating in between. However such a method cannot be made with a static transform.\\
 
-\marginnote{Her er der som jeg ser det to muligheder. Enten følger vi Kents idé om at publicere et dynamisk tf som interpolerer mellem fejlene eller også benytter vi en damped least-squares eller lignende til at bestemme et statisk tf...}
+\noindent The final calibrated transform from end-effector to camera $[T]_{TCP}^{camera}$ is composed of the transform from the a priori 3D model of the robot and a correction transform. \\
+
+\begin{equation}
+[T]_{TCP}^{camera} = [T_{model}]_{TCP}^{camera} \cdot [T_1]_{camera}^{correction}
+\end{equation}\\
+
+The correction transform $[T_1]_{camera}^{correction}$is obtained by multiplying the error at each pose. \\
+
+\begin{equation}
+[T_1]_{camera}^{correction} = [T_2]_{camera}^{correction} \cdot [T_3]_{camera}^{correction} \dots [T_n]_{camera}^{correction}
+\end{equation}\\
 
 \begin{figure}[htb]
 	\begin{center}
