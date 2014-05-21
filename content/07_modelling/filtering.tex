@@ -52,14 +52,21 @@ A version of the ICP algorithm using Levenberg-Marquardt and quaternion optimisa
 Preliminary results of the point cloud stitching is shortly presented and discussed here. 
 
 \begin{figure}[htb]
-	\begin{center}
-		\includegraphics[scale=0.7,trim=0 0 0 0]{graphics/07_modelling/bottle.png}%trim=l b r t
-		\caption{Illustrates a stitching of a water bottle. (Carmine data).}
-		\label{fig:bottle}
-	\end{center}
+	\centering
+        \begin{subfigure}[b]{0.4\textwidth}
+        \begin{center}
+			\includegraphics[width=0.6\textwidth]{graphics/07_modelling/bottle_image.png}
+			\end{center}
+        \end{subfigure}
+        \begin{subfigure}[b]{0.4\textwidth}
+        \begin{center}
+			\includegraphics[width=0.6\textwidth]{graphics/07_modelling/bottle.png}
+			\end{center}
+        \end{subfigure}  
+		\caption{Image and stitched point cloud of the bottle. (Carmine data).}\label{fig:bottle}
 \end{figure}
 
-\noindent As seen in figure \ref{fig:bottle} the stitching seems reasonable compared to figure \texttt{Bottle figure} \marginnote{Picture of bottle needed}. Inspecting the stitching further reveals a layered structure due to bad alignment as seen in figure \ref{fig:bottle_slice}.
+\noindent As seen in figure \ref{fig:bottle} the stitching seems reasonable compared to the image. Inspecting the stitching further reveals a layered structure due to bad alignment as seen in figure \ref{fig:bottle_slice}.
 
 \begin{figure}[htb]
 	\begin{center}
