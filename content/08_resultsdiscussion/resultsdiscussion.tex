@@ -1,8 +1,5 @@
-\chapter{Results and Discussion}
-To evaluate the performance of the system, a series of paired experiments were made before and after calibration. In the experiments three known (true 3D model is present) objects with different level of detail were used (Figure \ref{fig:objects}). In each experiment the robot goes through the 24 \marginnote{???} poses, capturing the object from 24 viewpoints. The system is then calibrated based on the results and the test is repeated. From each experiment two 3D models are built one before and one after calibration.
+\chapter{Preliminary Results}
+Evaluation of the system is based on a comparison between the hand-eye calibration module implemented in ROS and the proposed application specific calibration. Although several experiments were made, they mostly served to get acquainted with the system and the results are insufficient to draw any final conclusions. In the following the observations will be presented and discussed.
 
-\subsection{Evaluating the calibration}
-To evaluate the models built before calibration are visually compared to the models built after calibration to assess the improvement. More quantitative measures could be made, but if the difference is not visible to the naked eye, it is not worth doing the calibration. 
+The experiments consisted of running the system approximately 20 times varying the object, density of views, parameters on the camera, parameters on the carmine sensor, lighting conditions, stitching parameters, classic hand-eye calibration, the proposed method for calibrations etc. In all cases the performance of the system was poor and thus quantitative comparison to the original model was omitted. 
 
-\subsection{Evaluating the reconstruction}
-To evaluate the combined reconstruction process the 3D models from the experiments are compared to the known model in a quantitative way...
