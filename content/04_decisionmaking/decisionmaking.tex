@@ -27,7 +27,7 @@ The task is performed as a state machine (Figure \ref{fig:state_diagram}) consis
 \end{figure}
 
 \section{Special message type}
-For easy offline manipulation of data a messagetype has been defined to carry the information acquired at each pose. Using this format allows the data to be captured at one point in time and processing at another by using rosbag between the nodes. Initially the message only contains the pose id, max number of poses and poses of the sensors, it is then passed on to the stereo camera node where the captured images are appended. Afterwards the dense\_stereo node creates and appends 3D information from the captured images and finally it can be passed to the reconstruction node.
+For easy offline manipulation of data a messagetype has been defined to carry the information acquired at each pose. Using this format allows the data to be captured at one point in time and processed at another using rosbag as interface between the nodes. Initially the message only contains the pose id, max number of poses and poses of the sensors, it is then passed on to the stereo camera node where the captured images are appended. Afterwards the dense\_stereo node creates and appends 3D information from the captured images and finally it can be passed to the reconstruction node.
 
 \begin{figure}[htb]
 	\begin{center}

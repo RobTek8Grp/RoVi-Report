@@ -1,5 +1,5 @@
 \chapter{Calibration}
-In the process of combining data from several view points, a model of the system is needed as to align the measurements correctly. An idealised model can be formulated based on motion theory, but in inherently imperfect hence the need for calibration. In the context of eye-in-hand based surface reconstruction, especially calibrating the kinematic chain from object robot base is important in order to combine data from several views. Calibration of robot systems has received considerable attention and continues to be an active field of research. A solution for the unknown transforms from camera to end effector and from object to robot base can be obtained relatively easy by solving a homogeneous transform \cite{Shiu1989}. Several algorithms for more or less autonomous calibration has been proposed \cite{Tsai1988, Tsai1989} often simultaneously calibrating camera and hand-eye \cite{Malm2003, Zhao2008, Jordt2009}. The calibration process presented here is based on the linear method \cite{Tsai1988} with some application specific modifications.
+In the process of combining data from several view points, a model of the system is needed as to align the measurements correctly. An idealised model can be formulated based on physics theory, but is inherently imperfect hence the need for calibration. In the context of eye-in-hand based surface reconstruction, especially calibrating the kinematic chain from object robot base is important in order to combine data from several views. Calibration of robot systems has received considerable attention and continues to be an active field of research. A solution for the unknown transforms from camera to end effector and from object to robot base can be obtained relatively easy by solving a homogeneous transform \cite{Shiu1989}. Several algorithms for more or less autonomous calibration has been proposed \cite{Tsai1988, Tsai1989} often simultaneously calibrating camera and hand-eye \cite{Malm2003, Zhao2008, Jordt2009}. The calibration process presented here is based on the linear method \cite{Tsai1988} with some application specific modifications.
 
 
 \section{Notation}
@@ -9,9 +9,9 @@ In the formulation of hand-eye calibration a number of homogeneous transforms be
 \caption{Examples of the notation used to describe rigid transformation.}
 \begin{tabular}{ll}
 \label{tab:notation}
-$[T_{i}]_{camera}^{object}$   & The transform from object to camera at the \textit{i}th robot state          \\[8pt] 
-$[T_{i}]_{base}^{TCP}$        & The transform from end-effector to base at the \textit{i}th robot state      \\[8pt] 
-$[T_{i}]_{TCP}^{camera}$      & The transform from camera to end-effector at the \textit{i}th robot state     \\[8pt] 
+$[T_{i}]_{camera}^{object}$   & The object frame relative to the camera frame at the \textit{i}th robot state          \\[8pt] 
+$[T_{i}]_{base}^{TCP}$        & The TCP frame relative to the base frame at the \textit{i}th robot state      \\[8pt] 
+$[T_{i}]_{TCP}^{camera}$      & The camera frame relative to the end-effector frame at the \textit{i}th robot state     \\[8pt] 
 $[T_{i-1,i}]_{camera}$        & The camera frame at state \textit{i} relative to the camera frame at state \textit{i-1}  \\[8pt]              
 \end{tabular}
 \end{table}
@@ -31,7 +31,7 @@ $[T_{i-1,i}]_{camera}$        & The camera frame at state \textit{i} relative to
 	[T_{i}]_{base}^{object} = [T_{i}]_{base}^{TCP} \cdot [T_{i}]_{TCP}^{camera} \cdot [T_{i}]_{camera}^{object}
 \end{equation} \\
 
-\noindent The transform from end-effector to robot base can be found from the joint states of the robot and the transform from object to camera can, assuming the camera is calibrated, be found from projection geometry. This leaves only the transform from camera to end-effector as unknown. Assuming that the object is static and captured from different robot states, it is possible to formulate the transform between the two camera poses (Figure \ref{fig:hand_eye_transforms}, center).\\
+\noindent The transform from end-effector to robot base can be found from the joint states of the robot and the transform from object to camera can, assuming the camera is calibrated, be found from projection geometry. This leaves only the transform from camera to end-effector as unknown. Assuming that the object is static and captured from different robot states, it is possible to formulate the transform between the two camera poses (figure \ref{fig:hand_eye_transforms}, center).\\
 
 \begin{equation}\label{eq:object_camera}
 \begin{matrix}
@@ -43,7 +43,7 @@ $[T_{i-1,i}]_{camera}$        & The camera frame at state \textit{i} relative to
 \end{matrix}
 \end{equation}\\ 
 
-\noindent Similarly the transform between the two poses of the end-effector can be formulated(\ref{fig:hand_eye_transforms}, center).\\
+\noindent Similarly the transform between the two poses of the end-effector can be formulated (figure \ref{fig:hand_eye_transforms}, center).\\
 
 \begin{equation}
 \begin{matrix}
@@ -81,14 +81,25 @@ $[T_{i-1,i}]_{camera}$        & The camera frame at state \textit{i} relative to
 \end{matrix}\right.
 \end{equation}\\ 
 
-\noindent Normally the calibration is made by capturing views of a chessboard marker from several robot states. There are however two rather implicit assumptions \cite{Horaud1995} not justified by this approach. First the calibration of the camera assumes a perfect pinhole model and that the optical axis of the camera is perpendicular to the object, but equation \ref{equ:closed_loop} assumes that the object is static, which for most practical objects are contradictions. There are several approaches to solving this, but those are outside the scope of this discussion. 
+\noindent Normally the calibration is made by capturing views of a chessboard marker from several robot states solving a pose estimation problem placing the marker relative to the camera. There are however two rather implicit assumptions \cite{Horaud1995} not justified by this approach. First the calibration of the camera assumes a perfect pinhole model, which is only true for rectified images. Furthermore the optical axis of the camera is assumed to be perpendicular to the object, but equation \ref{equ:closed_loop} assumes that the object is static, which for most practical objects must be contradictions. There are several approaches to solving this, but those are outside the scope of this discussion. 
 
 \section{Application specific method}
 In this work an alternative approach is taken to include more of the possible uncertainties in the hand-eye calibration and to account for the unjustified assumptions mentioned above. Uncertainties in the vision process generating the transform from object to camera could stem from inaccurate parameters, the pinhole model assumption or pixel quantisation errors to mention a few. Uncertainties in the transform from end-effector to base can stem from mechanical inaccuracies, wear and tear, quantisation errors in encoders or from dynamics, also just to mention a few. \\
 
-\noindent Solving the linear system from equation \ref{eq:linear_equations} is equivalent to making a least-squares fit and thus after calibration a fixed transform minimising the error over all robot states is applied to each state. The problem with this is that a linear method is used to estimate errors that are by no means linear. Furthermore the method is vulnerable to outliers, since one faulty view will influence all others. Instead a method capable of fitting non-linear functions is desirable, but to use such, individual errors at each robot state must be known. Furthermore it is desired to include as much of the reconstruction process as possible inside the the calibration loop, to account for as many errors as possible. Therefore it is desirable to base the calibration on the point clouds instead of the camera output and furthermore it is desirable to evaluate each data pair instead of pooling them for all views.\\
+\noindent Solving the linear system from equation \ref{eq:linear_equations} is equivalent to making a least-squares fit and thus after calibration a fixed transform minimising the error over all robot states is applied to each state. The problem with this is that a linear method is used to estimate errors that are by no means linear. Furthermore the method is vulnerable to outliers, since one faulty view will influence all others. Instead a method capable of fitting non-linear functions is desirable, but to use such, individual errors at each robot state must be known. Furthermore it is desired to include as much of the reconstruction process as possible inside the the calibration loop, to account for as many errors as possible at the expense of increasing the non-linearity. Therefore it is desirable to base the calibration on the point clouds instead of the camera output and furthermore it is desirable to evaluate each data pair instead of pooling them for all views.\\
 
 \noindent Estimating a rigid transform between two point clouds is considered an absolute orientation problem \cite{Horn1987} and can be solved with an Iterative Closest Point(ICP) algorithm. The ICP algorithm tries to estimate a transform to align the source cloud to the target cloud by alternating between matching points that are close, estimating the transform and transforming the remaining points. Normally the transform is estimated using least-squares, but an alternative implementation using damped least-squares\cite{Gavin2011} and thus not assuming linearity is found in PCL (\texttt{pcl::IterativeClosestPointNonLinear< \ldots , \ldots >}). This is already implemented as part of the point cloud registration process is the modelling component where it is used for pairwise alignment of the point clouds as part of the registration process. Knowing the pairwise pose estimate means that another closed loop formulation can be expressed (Figure \ref{fig:new_calibration}). \\
+
+\begin{equation}
+[T_1]_{camera}^{correction} = [T_2]_{camera}^{correction} \cdot [T_3]_{camera}^{correction} \dots [T_n]_{camera}^{correction}
+\end{equation}\\
+
+\begin{figure}[htb]
+	\begin{center}
+		\includegraphics[scale=0.4,trim=0 0 0 0]{graphics/03_calibration/new_calibration.pdf}%trim=l b r t
+		\caption{The closed loop formed by the point cloud transformations.}\label{fig:new_calibration}
+	\end{center}
+\end{figure}
 
 \noindent Taking as example the camera pose at state 1 ($ [T_1]_{base}^{camera} $) and following the pairwise alignment transforms all the way around ending up back at state 1 the result must be equal to the original pose and the error at that pose.
 
@@ -102,7 +113,7 @@ In this work an alternative approach is taken to include more of the possible un
 \end{matrix}
 \end{equation}\\ 
 
-\noindent Looking at the closed loop in figure \ref{fig:new_calibration} if say the view at state 3 had a large error, that error would in the evaluation of all other states result in two contributions ($ T_{23} $ and $ T_{34} $) of equal magnitude and opposite sign. This means the method is robust to outliers. Now having estimated the error at each pose, a non-linear method can be used to estimate the calibrated transform. The ideal method would be one eliminating the error in each state, while interpolating in between. However such a method cannot be made with a static transform.\\
+\noindent Looking at the closed loop in figure \ref{fig:new_calibration} if say the view at state 3 had a large error, that error would in the evaluation of all other states result in two contributions ($ T_{23} $ and $ T_{34} $) of equal magnitude and opposite sign. This means the method is more robust to outliers. Now having estimated the error at each pose, a non-linear method can be used to estimate the calibrated transform. The ideal method would be one eliminating the error in each state, while interpolating in between. However such a method cannot be made with a static transform.\\
 
 \noindent The final calibrated transform from end-effector to camera $[T]_{TCP}^{camera}$ is composed of the transform from the a priori 3D model of the robot and a correction transform. \\
 
@@ -110,18 +121,9 @@ In this work an alternative approach is taken to include more of the possible un
 [T]_{TCP}^{camera} = [T_{model}]_{TCP}^{camera} \cdot [T_1]_{camera}^{correction}
 \end{equation}\\
 
-The correction transform $[T_1]_{camera}^{correction}$is obtained by multiplying the error at each pose. \\
+The correction transform $[T_1]_{camera}^{correction}$is obtained by multiplying the error at each pose, thus also linearly minimising the error. \\
 
-\begin{equation}
-[T_1]_{camera}^{correction} = [T_2]_{camera}^{correction} \cdot [T_3]_{camera}^{correction} \dots [T_n]_{camera}^{correction}
-\end{equation}\\
 
-\begin{figure}[htb]
-	\begin{center}
-		\includegraphics[scale=0.4,trim=0 0 0 0]{graphics/03_calibration/new_calibration.pdf}%trim=l b r t
-		\caption{The closed loop formed by the point cloud transformations.}\label{fig:new_calibration}
-	\end{center}
-\end{figure}
 
 
  
