@@ -55,7 +55,15 @@
 \printbibliography\addcontentsline{toc}{chapter}{Bibliography}
 
 % Appendix
-%\appendix %all sections below are numbered A, B, C,...
+\appendix %all sections below are numbered A, B, C,..
+\begin{appendices}
+\chapter{First whitepaper}
+\setboolean{@twoside}{false}
+\includepdf[pages=-]{content/aa_appendix/whitepaper1.pdf}
+\chapter{Second whitepaper}
+\setboolean{@twoside}{false}
+\includepdf[pages=-]{content/aa_appendix/whitepaper2.pdf}
 %\input{content/aa_appendix/appendices.tex}
+\end{appendices}
 
 \end{document}
