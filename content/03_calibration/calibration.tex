@@ -123,10 +123,10 @@ In this work an alternative approach is taken to include more of the possible un
 
 The correction transform $[T_1]_{camera}^{correction}$is obtained by multiplying the error at each pose, thus also linearly minimising the error. \\
 
+\subsection{Eye-to-hand calibration in ROS}\label{sec:visp}
+ The $visp_hand2eye_calibration $ node uses the Visual Servoing Platform to perform the hand-to-eye-calibration. This node takes several pairs of $world_effector$ and $camera_object$ transforms. These transforms are respectively the transformation between the world and the hand frame and the transformation between the camera and the object frame. Using the calibration plate from the camera calibration in section \ref{sec:calibration} the 3D position of the plate relative to the camera could be found. The transform from the robots base to the hand are published as a $ tool_flange $ transform.     
 
 
-
- 
 
 
 
