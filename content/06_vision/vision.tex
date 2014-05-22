@@ -50,7 +50,7 @@ The optimization is then done as a shortest path for multiple 1D paths. Figure \
 \begin{figure}[h!]
   \centering
     \includegraphics[scale=0.2]{graphics/06_vision/cost_aggregation.jpg}
-      \caption{Costs for all directions are calculated using specific disparities and the disparity with the shortest path is found.}
+      \caption{Costs for all directions are calculated using specific disparities and the disparity with the shortest path is found. From \cite{Hirschmuller2008}}
     \label{fig:paths}
 \end{figure}
 
@@ -86,14 +86,14 @@ The flowchart of the complete system as described in the original article \cite{
 \begin{figure}[h!]
   \centering
     \includegraphics[width=\textwidth]{graphics/06_vision/complete_system.jpg}
-     \caption{ Flowchart of the complete stereo process for SGBM. } 
+     \caption{ Flowchart of the complete stereo process for SGBM as shown in \cite{Hirschmuller2008} } 
     \label{fig:complete_system}
 \end{figure}
 
 
 \subsection{Reprojection} \label{sec:reprojection}
 
-During the calibration of the cameras, projection matrices were obtained for both cameras. The projection matrices are based on the left camera lens, meaning the baseline, distance to the left camera, is 0 for the left matrix. By multiplying the projection matrix with a 3D point in the left cameras coordinate system, the points position in the image can be found as in equation \ref{eq:projection}. 
+During the calibration of the cameras, projection matrices were obtained for both cameras. The projection matrices are based on the left camera lens, meaning the baseline, i.e. the distance to the left camera. Which  is 0 for the left matrix. By multiplying the projection matrix with a 3D point in the left cameras coordinate system, the points position in the image can be found as in equation \ref{eq:projection}. 
 
 
 \begin{equation}\label{eq:projection}
@@ -123,7 +123,7 @@ Here $F_{x}$ and $F_{y}$ are the focal length of the camera, $C_{x}$ and $C_{y}$
 
 $T_{x}$ is the translation to the left camera. That is for the right camera it is the baseline and for the left it is 0. The baseline is measured in millimetres. 
 
-But the goal is to obtain the opposite, the transform from 2D to 3D. That is the action of converting the obtained disparity map into a 3D point cloud. To do that the x and y positions are combined with the disparity. Thus multiplying with the Q matrix the 3D map position can be found.
+But the goal is to obtain the opposite, the transform from 2D to 3D. That is the action of converting the obtained disparity map into a 3D point cloud. To do that the x and y positions are combined with the disparity. Thus multiplying with the Q matrix the 3D map position can be found \cite{springer}.
 
 \[ Q [ x \ y \ d \ 1 ]^{T} = [ X \ Y \ Z \ W ]^{T} \]
 
@@ -165,7 +165,7 @@ Thus multiplying with the above mentioned vector, and scaling W to one the 3D po
 
 \section{Method - Images to point cloud}
 
-As the project uses ROS for communication between nodes as much as possible of the stereo operations has been implemented within this framework, although not always possible as explained in \ref{sec:optimizing_parameters}. In the following the implementations will be described and evaluated.
+As the project uses ROS for communication between nodes as much as possible of the stereo operations has been implemented within this framework, although this was not possible in all situations as explained in \ref{sec:optimizing_parameters}. In the following the implementations will be described and evaluated.
 
 \subsection{Calibration} \label{sec:calibration}
 
@@ -177,16 +177,13 @@ Undistortion and rectification is done with a simple ROS node $image\_proc$. By 
 
 \subsection{Block matching and reprojection}
 
-The block matching is done with the OpenCV function createStereoSGBM \cite{opencv} described in section \ref{sec:correspondence}. Time stamps are checked on the images to make sure that they are recorded at the same time. The SGBM then uses the images and a set of parameters to make a disparity map. As most of these parameters are application specific they are discussed in section \ref{sec:optimizing_parameters}. 
-
-%Conversion from int16 to float32 by division of 16.
-Block matching and reprojection are implemented in a ROS node taking the rectified images as input, creating the disparity map and reprojection based on the openCV function.
+The block matching is done with the OpenCV function createStereoSGBM \cite{opencv} described in section \ref{sec:correspondence}. Time stamps are checked on the images to make sure that they are recorded at the same time. The SGBM then uses the images and a set of parameters to make a disparity map. As most of these parameters are application specific they are discussed in section \ref{sec:optimizing_parameters}. Thus the block matching and reprojection are implemented in a ROS node taking the rectified images as input, creating the disparity map and reprojection based on the openCV function.
  
 \section{Evaluation}
-Here results from the different operations are shown, these results are qualitative to show that the concept works not quantitative for a measurement of how well.
+Here results from the different operations are shown, these results are done qualitative to show that the concept works not quantitative for a measurement of how well.
 
 \subsection{Calibration}
-From the calibration both the distortion, rectification and projection matrices are returned. The distortion parameters can be seen in equation \ref{eq:distortion}. A more in depth description of the undistorion can be seen in the OpenCV book \cite{locv}.
+From the calibration both the distortion, rectification and projection matrices are returned. The distortion parameters can be seen in equation \ref{eq:distortion}. A more in depth description of undistortion can be seen in the OpenCV book \cite{locv}.
 
 \begin{equation}\label{eq:distortion}
 \begin{split}
@@ -194,7 +191,7 @@ From the calibration both the distortion, rectification and projection matrices 
 \end{split}
 \end{equation} 
 
-The rotation matrix for rectification is also returned from the calibration. From equation \ref{eq:rectification} it can be seen that the rotation needed is small, but it is still needed for the 1D correspondence search to work. 
+The rotation matrix for rectification is also returned from the calibration. From equation \ref{eq:rectification} it can be seen that the rotation needed is small, though it is still needed for the 1D correspondence search to work. 
 
 \begin{equation}\label{eq:rectification}
 \begin{split}
@@ -218,12 +215,12 @@ Figure \ref{fig:rectified} shows an example of two output images from $image\_pr
 
 \subsection{Disparity map}
 
-From two rectified images the disparity map can be created. Figure \ref{fig:disparity} is an example of such. The overall structure of the scene is recognizable, but it can be seen that algorithm does not necessarily guarantees complete coverage with standard parameters. In section \ref{sec:optimizing_parameters} a discussion of the selection of those parameters is included.
+From two rectified images the disparity map can be created. Figure \ref{fig:disparity} is an example of such. The overall structure of the scene is recognizable, but it can be seen that the algorithm does not necessarily guarantees complete coverage with standard parameters. In section \ref{sec:optimizing_parameters} a discussion of the selection of those parameters is included.
 
 \begin{figure}[h!]
    \centering
     \includegraphics[scale=0.4]{graphics/06_vision/disparity_example.jpg}
-    \caption{Disparity image for the two images shown in figure \ref{fig:rectified}. }
+    \caption{Computed disparity image for the two images shown in figure \ref{fig:rectified} using SGBM. }
     \label{fig:disparity}
 \end{figure}
 
@@ -241,7 +238,7 @@ F_{x} = 1321.556521 \\
 \end{split}
 \end{equation} 
 
-Given $ -F_{x}T_{x} $ the baseline between the cameras calculated as in equation \ref{eq:baseline}.
+Given $ -F_{x}T_{x} $ the baseline between the cameras are calculated as in equation \ref{eq:baseline}.
 
 \begin{equation}\label{eq:baseline}
 \begin{split}
@@ -289,9 +286,7 @@ d = \dfrac{1321.55 pixel*0.1201m}{0.5m} = 317.4 pixel
 \end{split}
 \end{equation}
 
-The minimum and maximum disparity have to range around this number. It is because of this that the point cloud generated from the ROS $image\_proc$ cannot be used. The node is only able to search with a maximum disparity range of 128 pixel. This gives a minimum distance of 1.24 meters. This would not fit the desired set-up at all and therefore the automatically generated point cloud is rejected. The exact disparity range can be found by looking at the maximum size of the object. This is an important aspect as setting the correct disparity range will drastically improve the search time and potentially remove mismatches. The algorithm is only able to scale the disparity in ranges of 16.
-
-From these equations the minimum and maximum disparity are respectively chosen to be $16*16=256$ and $16*24=384$, resulting in a range from $0.41$ to $0.61$ meters. Thus if the distance to object should move outside this range it will not be found.
+The minimum and maximum disparity have to range around this number. It is because of this that the point cloud generated from the ROS $image\_proc$ cannot be used. The node is only able to search with a maximum disparity range of 128 pixel. This gives a minimum distance of 1.24 meters. This would not fit the desired set-up at all and therefore the automatically generated point cloud is rejected. The exact disparity range can be found by looking at the maximum size of the object. This is an important aspect, as setting the correct disparity range will drastically improve the search time and potentially remove mismatches. As the algorithm is only able to scale the disparity in ranges of 16, the equations the minimum and maximum disparity were respectively chosen to be $16*16=256$ and $16*24=384$, resulting in a range from $0.41$ to $0.61$ meters. Thus if the distance to object should move outside this range it will not be found.
 
 Speckle settings are another important parameter. The speckle-size is the minimum size of a path for it not to be removed as noise and the speckle-range is how large the difference can be between neighbouring pixels for them to still be considered from the same path. Though adjusting this depends entirely on the use of the point cloud. If the reconstruction doesn't take care of noise the speckle-size should be very low. The speckle range should also accommodate the point cloud so as to keep the signal/noise as high as possible, but still fitting the system. 
 
